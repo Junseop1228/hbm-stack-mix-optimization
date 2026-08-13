@@ -1,0 +1,184 @@
+/* ============================================================
+   ieee.css — IEEE 2단 조판
+   HBM Stack Mix Optimization | 2026.08.12
+
+   규격 출처 : IEEE Conference Paper Template (US Letter)
+     여백    상단 0.75in / 하단 1.0in / 좌우 0.625in
+     단      너비 3.5in, 단 간격 0.25in, 양쪽 정렬
+     본문    10pt Times, 행간 12pt, 문단 들여쓰기 0.14in
+     제목    24pt / 초록 9pt bold italic / 참고문헌 8pt
+     절 제목 로마숫자 + small-caps 가운데, 하위절 A. B. 이탤릭
+
+   한국어판은 본문 서체만 바탕(Batang) 계열로 교체한다.
+   ============================================================ */
+
+@page {
+  size: Letter;
+  margin: 0.75in 0.625in 1in 0.625in;
+}
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 10pt;
+  line-height: 12pt;
+  text-align: justify;
+  hyphens: auto;
+  margin: 0;
+  color: #000;
+}
+
+body.ko {
+  font-family: "Batang", "바탕", "Times New Roman", serif;
+  line-height: 13.6pt;      /* 한글은 행간을 조금 넓힌다 */
+  word-break: keep-all;      /* 어절 단위 줄바꿈 */
+}
+
+/* ---------- 2단 본문 ---------- */
+#doc {
+  column-count: 2;
+  column-gap: 0.25in;
+  column-fill: auto;
+}
+
+/* ---------- 제목 블록 (양 단 걸침) ---------- */
+.titleblock {
+  column-span: all;
+  text-align: center;
+  margin: 0 0 14pt 0;
+  break-after: avoid;
+}
+.titleblock h1 {
+  font-size: 21pt;
+  font-weight: normal;
+  line-height: 24pt;
+  margin: 0 0 10pt 0;
+  text-align: center;
+}
+body.ko .titleblock h1 { font-size: 19pt; line-height: 25pt; }
+.titleblock .meta {
+  font-size: 9pt;
+  line-height: 11pt;
+  color: #222;
+}
+.titleblock .meta .repo { font-family: "Consolas", monospace; font-size: 8.5pt; }
+
+/* ---------- 초록·키워드 ---------- */
+.abstract, .keywords {
+  font-size: 9pt;
+  line-height: 11pt;
+  font-weight: bold;
+  text-align: justify;
+  margin: 0 0 9pt 0;
+}
+.abstract { font-style: italic; }
+.abstract .lead, .keywords .lead { font-style: italic; }
+.keywords { font-style: italic; }
+
+/* ---------- 절 제목 ---------- */
+h2 {
+  font-size: 10pt;
+  font-weight: normal;
+  font-variant: small-caps;
+  text-align: center;
+  margin: 12pt 0 6pt 0;
+  break-after: avoid;
+}
+body.ko h2 { font-variant: normal; font-weight: bold; font-size: 10.5pt; }
+
+h3 {
+  font-size: 10pt;
+  font-style: italic;
+  font-weight: normal;
+  text-align: left;
+  margin: 9pt 0 3pt 0;
+  break-after: avoid;
+}
+body.ko h3 { font-style: normal; font-weight: bold; }
+
+h4 {
+  font-size: 10pt;
+  font-style: italic;
+  font-weight: normal;
+  display: inline;
+  margin: 0;
+}
+
+p { margin: 0; text-indent: 0.14in; }
+p.noindent, h2 + p, h3 + p, .abstract + p { text-indent: 0; }
+
+/* ---------- 목록 ---------- */
+ul, ol { margin: 4pt 0 4pt 0; padding-left: 14pt; }
+li { margin-bottom: 1.5pt; text-align: justify; }
+
+/* ---------- 인용 (선행연구 원문 등) ---------- */
+blockquote {
+  margin: 5pt 6pt;
+  padding-left: 6pt;
+  border-left: 1.6pt solid #999;
+  font-size: 9pt;
+  line-height: 11pt;
+  text-align: justify;
+}
+blockquote p { text-indent: 0; }
+
+/* ---------- 표 ---------- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 8pt;
+  line-height: 9.5pt;
+  margin: 4pt 0 8pt 0;
+  break-inside: avoid;
+}
+th, td { border: 0.5pt solid #000; padding: 1.6pt 3pt; text-align: left; vertical-align: top; }
+th { font-weight: bold; text-align: center; background: #f2f2f2; }
+table.wide { column-span: all; font-size: 8.5pt; }
+
+/* 표 캡션은 표 위 (IEEE 규약) */
+.tcap {
+  column-span: none;
+  font-size: 8pt;
+  font-variant: small-caps;
+  text-align: center;
+  margin: 8pt 0 2pt 0;
+  break-after: avoid;
+}
+body.ko .tcap { font-variant: normal; font-weight: bold; }
+
+/* ---------- 그림 ---------- */
+figure { margin: 8pt 0; break-inside: avoid; text-align: center; }
+figure.span { column-span: all; }
+figure img { width: 100%; height: auto; }
+figure.span img { width: 88%; }
+figcaption {
+  font-size: 8pt;
+  line-height: 9.5pt;
+  text-align: justify;
+  margin-top: 3pt;
+}
+figure.span figcaption { text-align: center; padding: 0 8%; }
+
+/* ---------- 수식 ---------- */
+.eq {
+  display: block;
+  text-align: center;
+  font-style: italic;
+  margin: 5pt 0;
+  text-indent: 0;
+}
+
+/* ---------- 참고문헌 ---------- */
+.refs { font-size: 8pt; line-height: 9.5pt; }
+.refs ol { padding-left: 12pt; margin: 0; }
+.refs li { margin-bottom: 2pt; text-align: justify; }
+
+/* ---------- 부록 ---------- */
+.appendix h2 { font-variant: small-caps; }
+body.ko .appendix h2 { font-variant: normal; }
+
+hr { border: none; border-top: 0.5pt solid #000; margin: 8pt 0; }
+
+strong { font-weight: bold; }
+code { font-family: "Consolas", monospace; font-size: 8.5pt; }

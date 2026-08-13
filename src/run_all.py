@@ -42,6 +42,8 @@ STEPS = [
      "data/fig2_mix_vs_yield.csv"),
     ("make_figures.py", "대표 그림 3장",
      "figures/fig1~3.png"),
+    ("make_figures.py --no-caption", "논문 조판용 그림 3장 (캡션 미포함)",
+     "paper/fig/fig1~3.png"),
     ("fig_audit.py", "그림 자동 검수 — 축 이탈·텍스트 겹침·곡선 관통",
      "(콘솔)"),
 ]
@@ -75,7 +77,8 @@ def main():
     for i, (f, d, _) in enumerate(STEPS, 1):
         print("\n[%d/%d] %s\n      %s" % (i, len(STEPS), f, d))
         t1 = time.time()
-        r = subprocess.run([sys.executable, os.path.join(HERE, f)],
+        parts = f.split()
+        r = subprocess.run([sys.executable, os.path.join(HERE, parts[0])] + parts[1:],
                            capture_output=True, text=True,
                            encoding="utf-8", errors="replace")
         if r.returncode != 0:

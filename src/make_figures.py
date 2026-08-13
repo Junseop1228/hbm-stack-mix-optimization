@@ -40,7 +40,10 @@ from hbm_model import Params, block_y
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FIGS = os.path.join(ROOT, "figures")
+# --no-caption : 논문 조판용. 캡션을 그림에 굽지 않고 paper/fig/ 로 낸다.
+# 논문에서는 조판 엔진이 그림 번호와 캡션을 붙이므로, 구운 캡션이 있으면 중복된다.
+PAPER_MODE = "--no-caption" in sys.argv
+FIGS = os.path.join(ROOT, "paper", "fig") if PAPER_MODE else os.path.join(ROOT, "figures")
 DATA = os.path.join(ROOT, "data")
 os.makedirs(FIGS, exist_ok=True)
 
@@ -49,6 +52,12 @@ FS.apply_style()
 COND = ("Conditions: x = 0.965, beta = 0.95, beta_f = 0.95, a = 3, theta = 3, "
         "DPPM cap = 200 ppm, demand share (>=12-Hi) = 0.70, H_t/H_b = 0.90, "
         "one inspection period per stack height.")
+
+
+def _cap(fig, text):
+    """논문 모드에서는 캡션을 굽지 않는다 (조판 엔진이 캡션을 붙이므로 중복 방지)."""
+    if not PAPER_MODE:
+        FS.caption(fig, text)
 
 
 def save(fig, name):
@@ -127,7 +136,7 @@ def fig1():
                  loc="left", pad=26, fontweight="bold", color=BLACK)
     FS.hgrid(ax)
     FS.despine(ax)
-    FS.caption(fig, "Figure 1.  Bottleneck transition point versus outgoing "
+    _cap(fig, "Figure 1.  Bottleneck transition point versus outgoing "
                     "quality limit.  Below the transition ratio the tester is "
                     "the bottleneck; above it the bonder is.\n" + COND)
     return save(fig, "fig1_bottleneck_vs_quality.png")
@@ -218,7 +227,7 @@ def fig2():
                  loc="left", pad=24, fontweight="bold", color=BLACK)
     FS.hgrid(ax)
     FS.despine(ax)
-    FS.caption(fig, "Figure 2.  Share of 16-Hi stacks in the optimal production "
+    _cap(fig, "Figure 2.  Share of 16-Hi stacks in the optimal production "
                     "mix versus per-layer bonding yield.  Grey lines show 8-Hi "
                     "and 12-Hi shares for context.  Filled markers indicate that "
                     "the customer capacity constraint is binding.\n" + COND)
@@ -288,7 +297,7 @@ def fig3():
                  loc="left", pad=16, fontweight="bold", color=BLACK)
     FS.hgrid(ax)
     FS.despine(ax)
-    FS.caption(fig, "Figure 3.  Lowest outgoing DPPM attainable for a 12-Hi stack "
+    _cap(fig, "Figure 3.  Lowest outgoing DPPM attainable for a 12-Hi stack "
                     "when every eligible in-line inspection is used, as a function "
                     "of final-test detection rate.  Open circles mark the no-final-test "
                     "case.\nConditions: x = 0.965, beta = 0.95, 12-Hi stack.  "

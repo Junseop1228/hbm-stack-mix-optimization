@@ -20,6 +20,7 @@ desktop.ini
 _scratch/
 run.log
 run.err
+_preview_*.png
 
 # ── 공개하지 않는 것 ───────────────────────────────────
 # v1(HBM KGD Test Strategy) 원본 문서 일체.

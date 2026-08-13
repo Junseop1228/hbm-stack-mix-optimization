@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Joint Optimization of Stack-Height Mix and Layer-Wise Inspection Period for HBM Under Assembly and Test Throughput Constraints</title>
+<link rel="stylesheet" href="ieee.css">
+</head>
+<body class="en">
+<div id="doc">
+
+<div class="titleblock">
+  <h1>Joint Optimization of Stack-Height Mix and Layer-Wise Inspection Period<br>for HBM Under Assembly and Test Throughput Constraints</h1>
+  <div class="meta">
+    Technical Report &nbsp;|&nbsp; Version 1.0 &nbsp;|&nbsp; August 2026<br>
+    <span class="repo">github.com/Junseop1228/hbm-stack-mix-optimization</span><br>
+    Formatting follows the IEEE conference two-column template.
+    Section structure follows M. Agrawal and K. Chakrabarty [1], the work this study extends.
+  </div>
+</div>
+
+<p class="abstract"><span class="lead">Abstract—</span>High Bandwidth Memory (HBM) is manufactured by vertically stacking DRAM dies. Capacity grows linearly with the number of layers, but compound yield decays exponentially. Periodic inspection during stacking discards defective stacks early and thereby saves downstream equipment time, yet inspection itself consumes tester time. The established cost-modeling literature for 3D-stacked ICs optimizes cost alone, does not model equipment throughput, treats the number of layers as a given parameter, and is limited to at most five dies because the search space grows as O(N<sup>l<sup>2</sup></sup>). This report constrains the search structure to layer-wise periodic patterns, which makes 12- to 16-high stacks tractable, and adds bonder and tester throughput constraints together with a stack-height product mix as decision variables in a mixed-integer linear program. Because the absolute values of the equipment and cost coefficients are not public, the input is treated as a parameter space rather than a data set, and conclusions are reported probabilistically through triangular-distribution Monte Carlo sampling. Five results follow. First, the priority for equipment expansion is a function of the outgoing quality target: below a 425 ppm limit the bottleneck transition ratio is pinned at 0.584 and is insensitive to quality, whereas at 200 ppm it rises to 1.140, meaning tester capacity must exceed bonder capacity. Second, 16-high stacks appear for two opposite reasons&mdash;customer capacity demand forces them at low yield, while equipment economics selects them at high yield. Third, without a final test no inspection frequency reaches 1,000 ppm; the floor is 1,908.9 ppm. Fourth, when the bonder is the bottleneck the optimal policy is to inspect as often as possible, and the reverse holds when the tester is the bottleneck. Fifth, a value-of-information analysis shows that stack-height composition is governed by per-layer bonding yield (correlation +0.476) and bottleneck location by the inspection-time ratio (+0.417), while cost coefficients are immaterial (below 0.06).</p>
+
+<p class="keywords"><span class="lead">Index Terms—</span>HBM, 3D stacking, production allocation, mixed-integer linear programming, capacity constraint, inspection period, bottleneck analysis, Monte Carlo, value of information.</p>
+
+<h2>I.&nbsp;&nbsp;Introduction</h2>
+
+<p class="noindent">Three-dimensional stacking shortens interconnects and raises bandwidth, and HBM is the case in which the technology has settled into volume production. In stacking, however, a single defective die renders the entire stack defective, so increasing the number of layers carries an exponential yield penalty.</p>
+
+<p>Let <i>x</i> denote the per-layer bonding yield and <i>L</i> the number of layers. The compound yield is <i>x<sup>L</sup></i>. At <i>x</i> = 0.965 an 8-high stack yields 75.2 %, a 12-high stack 65.2 %, and a 16-high stack 56.5 %. Revenue, in contrast, grows only linearly in <i>L</i>. The structure therefore degrades multiplicatively while improving additively, and stacking as high as possible is not the answer.</p>
+
+<p>Forces in the opposite direction exist simultaneously. Fixed operations before stacking, such as carrier loading and initial alignment, occur once regardless of <i>L</i> and are amortized over more layers as the stack grows. The base die at the bottom of the stack is likewise required exactly once. Finally, the number of HBM sites per GPU is fixed, so a total capacity target imposes a lower bound on <i>L</i>.</p>
+
+<p>The inspection decision is layered on top. Inspecting during stacking allows a defective stack to be discarded early, saving the stacking time, inspection time, and die consumption of all subsequent layers; but inspection occupies the tester. The problem is therefore:</p>
+
+<blockquote><p>Should a marginal unit of equipment capacity be spent stacking higher, or inspecting more often?</p></blockquote>
+
+<h3>A.&nbsp;&nbsp;Contributions</h3>
+
+<ul>
+<li><i>Equipment throughput constraints.</i> Unlike the prior lineage, which addresses cost alone, the bonder and tester are modeled as two separate resources, so that bottleneck identification and the marginal value of one second of equipment time are produced endogenously.</li>
+<li><i>Stack-height product mix.</i> The situation in which heterogeneous products of different heights share one line is modeled. The prior lineage assumes a single product and a single stack throughout.</li>
+<li><i>Number of layers as a decision variable.</i> The layer count <i>l</i>, a given parameter in prior work, is promoted to a decision variable.</li>
+<li><i>Tractability at realistic stack sizes.</i> Restricting the search to layer-wise periodic patterns <i>k</i> &isin; {1, 2, 4} avoids the O(N<sup>l<sup>2</sup></sup>) blow-up and admits 12- to 16-high stacks.</li>
+<li><i>Conclusions over a parameter space.</i> Coefficients whose absolute values are confidential are represented by triangular distributions, and the report states threshold conditions and confidence intervals rather than point estimates. A value-of-information analysis identifies which parameters must be measured accurately and which need not be.</li>
+</ul>
+
+<h3>B.&nbsp;&nbsp;Organization</h3>
+
+<p class="noindent">Section II states the motivation and positions the work against prior art. Section III presents the model and Section IV the optimization formulation. Section V discusses the solution method and the alternatives that were rejected. Section VI describes validation and Section VII reports results. Section VIII discusses limitations and Section IX concludes. Appendix A derives the early-discard expectations and Appendix B documents reproduction.</p>
+
+<h2>II.&nbsp;&nbsp;Motivation and Prior Work</h2>
+
+<h3>A.&nbsp;&nbsp;Landscape</h3>
+
+<p class="noindent">Cost modeling and test-flow optimization for 3D-stacked ICs form an established lineage. The survey is summarized in Table I.</p>
+
+<div class="tcap">Table I<br>Coverage of prior work and the gap addressed here</div>
+<table>
+<tr><th>Area</th><th>Status</th><th>Representative work</th></tr>
+<tr><td>3D stacking cost model</td><td>Covered</td><td>3D-COSTAR [5]; CATCH [3]</td></tr>
+<tr><td>Test-flow selection</td><td>Covered</td><td>Agrawal &amp; Chakrabarty [1]</td></tr>
+<tr><td>Mid-bond test cost impact</td><td>Covered</td><td>Taouil <i>et&nbsp;al.</i> [7]</td></tr>
+<tr><td>Existence of a layer optimum</td><td>Covered</td><td>[9], [10]</td></tr>
+<tr><td>Quality&ndash;cost trade-off, DPPM</td><td>Covered</td><td>Taouil <i>et&nbsp;al.</i> [8]</td></tr>
+<tr><td>D2W cost framework</td><td>Covered</td><td>Taouil <i>et&nbsp;al.</i> [2]</td></tr>
+<tr><td><b>Equipment throughput constraint</b></td><td><b>Gap</b></td><td>one budget remark (II-C)</td></tr>
+<tr><td><b>Stack-height product mix</b></td><td><b>Gap</b></td><td>&mdash;</td></tr>
+<tr><td><b>Layer count as decision variable</b></td><td><b>Gap</b></td><td>&mdash;</td></tr>
+<tr><td><b>12- to 16-high tractability</b></td><td><b>Gap</b></td><td>experiments up to 5 dies</td></tr>
+</table>
+
+<h3>B.&nbsp;&nbsp;Objective Function in Prior Work</h3>
+
+<p class="noindent">Agrawal and Chakrabarty demonstrate experimentally that cost per good package dominates total cost as an objective. In a two-die example, using total cost offsets the profit margin per good stack by 2 %, and they note that the loss can grow materially at larger scales.</p>
+
+<p>This report adopts that judgment but makes explicit a condition under which the two objectives become equivalent: namely, when capacity is a hard constraint. This is developed in Section IV-B.</p>
+
+<h3>C.&nbsp;&nbsp;The Single Remark on Resource Constraints</h3>
+
+<p class="noindent">The only place in the lineage where a resource constraint appears is the results section of [1]:</p>
+
+<blockquote><p>&ldquo;When we have a limited supply of resources for manufacturing and testing of 3D-Stacked ICs, our approach can be adapted to report an optimal test flow under an additional constraint on the total amount that can spent. The A*-based method can discard nodes with the value of g(n) + h(n) exceeding the available resources.&rdquo;</p></blockquote>
+
+<p>This is a budget constraint expressed in currency, not a throughput constraint expressed in time, and it is raised as a possible adaptation rather than implemented. The same paper contains no notion of time at all: it states that &ldquo;the number of test patterns&rdquo; is used &ldquo;as a surrogate measure of test cost.&rdquo; The chain from test time to equipment occupancy to capacity therefore does not exist in that formulation.</p>
+
+<h3>D.&nbsp;&nbsp;An Extension Point Left Open</h3>
+
+<p class="noindent">At the end of the same section the authors observe that different manufacturing flows lead to different manufacturing cost and die yield, which in turn affect the optimal test flow, and that to evaluate manufacturing flows together with test flows the selection tool &ldquo;must be invoked repeatedly.&rdquo;</p>
+
+<p>This report folds that repeated invocation into a single optimization: the manufacturing-flow choice (stack height) and the test-flow choice (inspection period) are decided inside one objective function.</p>
+
+<h3>E.&nbsp;&nbsp;Positioning</h3>
+
+<p class="noindent">The position of this work is therefore not that prior work is absent, but that it addresses, from a production-management standpoint, what the prior lineage left open. The imec and TU Delft line concluded that no universal test flow spans all stacked products, and the Duke line concluded that no general rule for cost minimization can be stated. Both left condition-dependent optima as future work.</p>
+
+<h2>III.&nbsp;&nbsp;Model</h2>
+
+<h3>A.&nbsp;&nbsp;Notation</h3>
+
+<p class="noindent">Following the reference format, given parameters and decision variables are tabulated separately.</p>
+
+<div class="tcap">Table II<br>Given parameters</div>
+<table>
+<tr><th>Symbol</th><th>Meaning</th><th>Value</th><th>Grade</th></tr>
+<tr><td><i>L</i></td><td>candidate stack heights</td><td>{8, 12, 16}</td><td>A</td></tr>
+<tr><td><i>k</i></td><td>inspection period (one test per <i>k</i> layers)</td><td>{1, 2, 4}</td><td>A</td></tr>
+<tr><td><i>x</i></td><td>per-layer bonding yield</td><td>0.965</td><td>B</td></tr>
+<tr><td>&beta;</td><td>in-line inspection detection rate</td><td>0.95</td><td>C</td></tr>
+<tr><td>&beta;<sub>f</sub></td><td>final-test detection rate</td><td>0.95</td><td>C (inverted)</td></tr>
+<tr><td><i>t</i><sub>stack</sub></td><td>time to stack one layer</td><td>5.4 s</td><td>B</td></tr>
+<tr><td><i>a</i></td><td>pre-stack fixed-time ratio, <i>t</i><sub>fix,a</sub>/<i>t</i><sub>stack</sub></td><td>3.0</td><td>unknown</td></tr>
+<tr><td>&theta;</td><td>inspection-time ratio, <i>t</i><sub>test</sub>/<i>t</i><sub>stack</sub></td><td>3.0</td><td>unknown</td></tr>
+<tr><td><i>r</i></td><td>revenue per layer (core die cost = 1.0)</td><td>5.0</td><td>unknown</td></tr>
+<tr><td><i>c</i><sub>base</sub></td><td>base die cost ratio</td><td>1.5</td><td>unknown</td></tr>
+<tr><td><i>c</i><sub>fix,b</sub></td><td>post-stack fixed cost (reflow, molding)</td><td>4.5</td><td>unknown</td></tr>
+<tr><td><i>c</i><sub>test</sub></td><td>cost per inspection</td><td>0.012</td><td>B</td></tr>
+<tr><td><i>c</i></td><td>capacity per layer</td><td>3 GB</td><td>A</td></tr>
+<tr><td><i>H<sub>b</sub></i>, <i>H<sub>t</sub></i></td><td>bonder / tester available time</td><td>ratio &rho;</td><td>unknown</td></tr>
+<tr><td><i>D<sub>s</sub></i></td><td>minimum good capacity of segment <i>s</i></td><td>&ge;12-high share 0.70</td><td>B</td></tr>
+<tr><td><i>W</i></td><td>wafer die supply</td><td>&mdash;</td><td>unknown</td></tr>
+<tr><td><i>Q</i></td><td>outgoing DPPM limit</td><td>200 ppm</td><td>unknown</td></tr>
+</table>
+
+<p>Grades are A (literature or standard), B (inferred from industry sources), C (assumption), and unknown. Unknown entries are handled as triangular-distribution scenarios in Sections V-D and VII-E.</p>
+
+<div class="tcap">Table III<br>Decision variables</div>
+<table>
+<tr><th>Symbol</th><th>Meaning</th></tr>
+<tr><td><i>q</i>(<i>L</i>, <i>k</i>)</td><td>number of stacks started in configuration (<i>L</i>, <i>k</i>)</td></tr>
+<tr><td><i>y</i>(<i>L</i>, <i>k</i>)</td><td>binary; 1 if period <i>k</i> is selected for height <i>L</i></td></tr>
+</table>
+
+<h3>B.&nbsp;&nbsp;Assumptions</h3>
+
+<p class="noindent"><i>Assumption 1.</i> Per-layer bonding failures are independent and identically distributed with probability (1 &minus; <i>x</i>). The defect-free probability of an <i>L</i>-layer stack is therefore <i>x<sup>L</sup></i>.</p>
+
+<p><i>Assumption 2.</i> The effect of inspection is restricted to early discard. A detected stack is scrapped immediately and incurs no further stacking time, inspection time, or die consumption. Repair and layer redundancy are out of scope.</p>
+
+<p><i>Rationale.</i> Modeling repair would require process data on which defects are repairable, and no public source provides it. Early discard alone defines the economic value of inspection, and it maps directly onto equipment time.</p>
+
+<p><i>Assumption 3.</i> In-line inspection follows a layer-wise periodic pattern only&mdash;one test every <i>k</i> layers&mdash;and exactly one period is chosen per stack height.</p>
+
+<p><i>Rationale.</i> Production lines inspect on regular patterns of one, two, or four layers depending on the assembly house. Arbitrary combinations of inspection positions are not operable, and running two different periods for the same product for the same reason. The opportunity cost of this restriction is quantified in Section VII-H.</p>
+
+<p><i>Assumption 4.</i> A single final test after molding always occurs, with detection rate &beta;<sub>f</sub>.</p>
+
+<p><i>Rationale.</i> The standard HBM flow comprises an initial wafer-level test, an <i>optional</i> post-stack inspection, and a final test after package assembly. Because the intermediate step is optional, <i>k</i> is a decision variable; because the final test is always performed, &beta;<sub>f</sub> is a parameter.</p>
+
+<p><i>Assumption 5.</i> Escapes are shipped and counted in DPPM, but are returned or replaced and therefore not recognized as revenue. This matches the standard treatment of cost of poor quality.</p>
+
+<p><i>Assumption 6.</i> All output is sold. HBM is in a supply-constrained regime, and this premise justifies the objective chosen in Section IV.</p>
+
+<p><i>Assumption 7.</i> Mass reflow and molding are low-cost, high-throughput batch operations and are not capacity bottlenecks. Their time is excluded from the capacity constraints and charged to cost only.</p>
+
+<h3>C.&nbsp;&nbsp;Block Y &mdash; Yield and Inspection</h3>
+
+<p class="noindent">Per stack started, the following quantities are computed; the derivation is in Appendix A.</p>
+
+<div class="tcap">Table IV<br>Block Y outputs</div>
+<table>
+<tr><th>Symbol</th><th>Meaning</th></tr>
+<tr><td><i>p</i><sub>good</sub>(<i>L</i>)</td><td>defect-free fraction = <i>x<sup>L</sup></i></td></tr>
+<tr><td><i>p</i><sub>escape</sub>(<i>L</i>,<i>k</i>)</td><td>defective but undetected, hence shipped</td></tr>
+<tr><td><i>p</i><sub>ship</sub>(<i>L</i>,<i>k</i>)</td><td><i>p</i><sub>good</sub> + <i>p</i><sub>escape</sub></td></tr>
+<tr><td>E[layer](<i>L</i>,<i>k</i>)</td><td>expected number of layers actually stacked</td></tr>
+<tr><td>E[test](<i>L</i>,<i>k</i>)</td><td>expected number of inspections performed</td></tr>
+<tr><td>DPPM(<i>L</i>,<i>k</i>)</td><td><i>p</i><sub>escape</sub> / <i>p</i><sub>ship</sub> &times; 10<sup>6</sup></td></tr>
+</table>
+
+<p><i>Key property.</i> <i>p</i><sub>good</sub> does not depend on <i>k</i>. Changing the inspection period leaves the final good count unchanged; what changes is the equipment time and the dies wasted on defective stacks. This is precisely why the early-discard mechanism operates only through equipment time.</p>
+
+<p>For the special case <i>k</i> = 1, &beta; = 1 a closed form exists:</p>
+
+<span class="eq">E[layer] = (1 &minus; <i>x<sup>L</sup></i>) / (1 &minus; <i>x</i>)</span>
+
+<p class="noindent">At <i>x</i> = 0.965 and <i>L</i> = 16 this gives 12.42, which is 22 % below <i>L</i>. Approximating this quantity by <i>L</i> overestimates the stack-height transition threshold by roughly a factor of four.</p>
+
+<h3>D.&nbsp;&nbsp;Block T &mdash; Equipment and Cost</h3>
+
+<span class="eq">&tau;<sub>bond</sub> = <i>t</i><sub>fix,a</sub> + <i>t</i><sub>stack</sub> &middot; E[layer]</span>
+<span class="eq">&tau;<sub>test</sub> = <i>t</i><sub>test</sub> &middot; E[test]</span>
+<span class="eq">E[<i>C</i>] = <i>c</i><sub>base</sub> + <i>c</i><sub>die</sub> E[layer] + <i>c</i><sub>test</sub> E[test] + <i>p</i><sub>ship</sub> <i>c</i><sub>fix,b</sub></span>
+<span class="eq"><i>R</i>(<i>L</i>) = <i>r</i> &middot; <i>L</i> &middot; <i>p</i><sub>good</sub></span>
+
+<p class="noindent">Under Assumption 7 the post-stack fixed time <i>t</i><sub>fix,b</sub> leaves the capacity constraint and remains only in cost. This does not eliminate the amortization of fixed content; it moves it from the denominator (equipment time) to the numerator (cost). The direction is preserved: the larger the height-independent fixed cost, the more favorable tall stacks become.</p>
+
+<h3>E.&nbsp;&nbsp;Module Separation</h3>
+
+<p class="noindent">The two blocks exchange no data. Each takes the common input (<i>L</i>, <i>k</i>) and computes independently; the coupling function belongs to neither block and lives in a single file. Consequently an unresolved quantity in one block does not propagate to the other. In practice Block Y, the coupling layer, and the scenario analysis were completed while every coefficient in Block T remained unknown.</p>
+
+<h2>IV.&nbsp;&nbsp;Problem Formulation</h2>
+
+<h3>A.&nbsp;&nbsp;Objective</h3>
+
+<span class="eq">max &nbsp; &Sigma;<sub>(L,k)</sub> [ <i>R</i>(<i>L</i>) &minus; E[<i>C</i>](<i>L</i>,<i>k</i>) ] &middot; <i>q</i>(<i>L</i>,<i>k</i>)</span>
+
+<p class="noindent">Total profit is maximized, with Assumption 6 as the premise.</p>
+
+<h3>B.&nbsp;&nbsp;Why the Fractional Objective Was Rejected</h3>
+
+<p class="noindent">The first formulation used profit per unit of equipment time&mdash;the analogue of cost per good package&mdash;and linearized it by the Charnes&ndash;Cooper transformation. When executed, <i>every capacity constraint returned a shadow price of zero</i>. The cause was not the implementation but the formulation.</p>
+
+<blockquote><p>A fractional objective is scale-invariant. Against the instruction &ldquo;maximize profit per hour,&rdquo; the model&rsquo;s optimal response is to produce less. There is no incentive to exhaust capacity, so the capacity constraints never bind and bottleneck identification is undefined.</p></blockquote>
+
+<p>Switching to total profit not only removes the pathology but yields the following:</p>
+
+<blockquote><p>When a capacity constraint binds, its shadow price <i>is</i> the marginal profit of one second on that equipment.</p></blockquote>
+
+<p>The per-unit metric therefore need not be imposed as an objective; it emerges as the dual, and the bottleneck is the larger of the two duals. Section VI-B confirms this numerically.</p>
+
+<p>The reference work recommends cost per good package in a setting without capacity constraints and with production volume given. Once capacity is a hard constraint and volume is endogenous, maximizing total profit <i>is</i> maximizing profit per equipment-hour, and that value appears as the dual. This report thus states the condition under which the two objectives coincide.</p>
+
+<h3>C.&nbsp;&nbsp;Constraints</h3>
+
+<div class="tcap">Table V<br>Constraint set</div>
+<table>
+<tr><th>Id</th><th>Description</th><th>Form</th></tr>
+<tr><td>C1-a</td><td>bonder throughput</td><td>&Sigma; &tau;<sub>bond</sub> <i>q</i> &le; <i>H<sub>b</sub></i></td></tr>
+<tr><td>C1-b</td><td>tester throughput</td><td>&Sigma; &tau;<sub>test</sub> <i>q</i> &le; <i>H<sub>t</sub></i></td></tr>
+<tr><td>C2</td><td>customer capacity demand</td><td>&Sigma;<sub>L&ge;L<sub>s</sub></sub> <i>cL p</i><sub>good</sub> <i>q</i> &ge; <i>D<sub>s</sub></i></td></tr>
+<tr><td>C3</td><td>wafer supply</td><td>&Sigma; (1 + E[layer]) <i>q</i> &le; <i>W</i></td></tr>
+<tr><td>C4</td><td>outgoing quality</td><td>&Sigma; (<i>p</i><sub>escape</sub> &minus; <i>Q p</i><sub>ship</sub>) <i>q</i> &le; 0</td></tr>
+<tr><td>&mdash;</td><td>one period per height</td><td>&Sigma;<sub>k</sub> <i>y</i> &le; 1, <i>q</i> &le; <i>M y</i></td></tr>
+</table>
+
+<p>Splitting C1 into two constraints is the precondition for bottleneck identification; merging them into a single pool makes the question &ldquo;which equipment fills first&rdquo; unanswerable. C4 is fractional in form but becomes linear after multiplying through by the denominator.</p>
+
+<h2>V.&nbsp;&nbsp;Solution Method</h2>
+
+<h3>A.&nbsp;&nbsp;Mixed-Integer Linear Program</h3>
+
+<p class="noindent">The decision variables are continuous quantities <i>q</i> over nine (<i>L</i>, <i>k</i>) configurations plus the binaries <i>y</i>. The big-M for each binary follows naturally from that configuration&rsquo;s capacity and wafer limits, so no arbitrary constant is introduced. The CBC solver bundled with PuLP is used; one solve takes about 0.06 s.</p>
+
+<h3>B.&nbsp;&nbsp;Alternatives Rejected</h3>
+
+<div class="tcap">Table VI<br>Rejected solution approaches</div>
+<table>
+<tr><th>Alternative</th><th>Reason for rejection</th></tr>
+<tr><td>A* search</td><td>the method of [1]; Assumption 3 already collapses the search space to nine configurations, so a search algorithm is unnecessary</td></tr>
+<tr><td>Exhaustive enumeration</td><td>the baseline [1] rejects as impractical</td></tr>
+<tr><td>Gurobi</td><td>excessive for nine configurations; a commercial license impedes reproduction</td></tr>
+<tr><td>Charnes&ndash;Cooper</td><td>obviated by the correction in Section IV-B</td></tr>
+</table>
+
+<h3>C.&nbsp;&nbsp;Obtaining Shadow Prices</h3>
+
+<p class="noindent">CBC does not return duals while integer variables remain. The inspection-period selection must be fixed and the model re-solved as a pure linear program to obtain shadow prices.</p>
+
+<h3>D.&nbsp;&nbsp;Treatment of Parameter Uncertainty</h3>
+
+<p class="noindent">Absolute values of the equipment and cost coefficients are confidential without exception. The input of this study is therefore a parameter space rather than a data set: ranges obtainable from public literature are represented as triangular distributions and 2,000 Monte Carlo draws produce the distribution of conclusions.</p>
+
+<p>The Monte Carlo here concerns <i>parameter</i> uncertainty. Monte Carlo over defect events is not performed, because early discard admits a closed form and simulating it would duplicate the calculation.</p>
+
+<h2>VI.&nbsp;&nbsp;Validation</h2>
+
+<h3>A.&nbsp;&nbsp;Checks</h3>
+
+<div class="tcap">Table VII<br>Validation checks and outcomes</div>
+<table>
+<tr><th>#</th><th>Check</th><th>Result</th></tr>
+<tr><td>1</td><td>ranges of probabilities and expectations</td><td>pass</td></tr>
+<tr><td>2</td><td>identity <i>p</i><sub>good</sub>+<i>p</i><sub>escape</sub>+<i>p</i><sub>discard</sub>=1</td><td>pass</td></tr>
+<tr><td>3</td><td><i>k</i>-invariance of <i>p</i><sub>good</sub> = <i>x<sup>L</sup></i></td><td>pass</td></tr>
+<tr><td>4</td><td>monotonicity in <i>k</i></td><td>pass</td></tr>
+<tr><td>5</td><td>limit <i>x</i> &rarr; 1</td><td>pass</td></tr>
+<tr><td>6</td><td>limit &beta; &rarr; 0</td><td>pass</td></tr>
+<tr><td>7</td><td>limit <i>a</i> &rarr; 0 favors minimum height</td><td>pass</td></tr>
+<tr><td><b>8</b></td><td><b>literature reproduction</b></td><td><b>pass</b></td></tr>
+<tr><td>9</td><td>dimensional consistency</td><td>pass</td></tr>
+</table>
+
+<h3>B.&nbsp;&nbsp;Check 8 &mdash; The Only Critical Gate</h3>
+
+<p class="noindent">Since the claimed contribution is the addition of equipment constraints, removing them must reduce the model to the problem solved in prior work. A different answer would indicate either a modeling error or an overstated contribution.</p>
+
+<p>Merging bonder and tester into a single pool and releasing the demand and quality constraints yields an interior optimum at 12 layers with unimodality confirmed, a single-pool shadow price of 0.20840, and a directly computed profit per equipment-second of 0.20840. <i>The dual and the direct computation agree to five decimal places.</i> This confirms the claim of Section IV-B and simultaneously establishes that without a capacity constraint the quantity is undefined.</p>
+
+<h3>C.&nbsp;&nbsp;Independent Cross-Check</h3>
+
+<p class="noindent">The stack-height transition threshold <i>a</i> was obtained by two independent routes: a hand calculation using the closed form with cost terms gave 1.39 and 10.26 for the 8&rarr;12 and 12&rarr;16 transitions, and an MILP limit sweep gave values near 1.4 and 10.5.</p>
+
+<h2>VII.&nbsp;&nbsp;Results</h2>
+
+<p class="noindent">The baseline setting is <i>x</i> = 0.965, &beta; = 0.95, &beta;<sub>f</sub> = 0.95, <i>a</i> = 3, &theta; = 3, DPPM limit 200 ppm, &ge;12-high demand share 0.70, and &rho; = <i>H<sub>t</sub></i>/<i>H<sub>b</sub></i> = 0.90.</p>
+
+<h3>A.&nbsp;&nbsp;Baseline Solution</h3>
+
+<div class="tcap">Table VIII<br>Baseline optimum</div>
+<table>
+<tr><th>Quantity</th><th>Value</th></tr>
+<tr><td>production mix</td><td>8-high <i>k</i>=2 (69.3 %), 12-high <i>k</i>=2 (27.7 %), 16-high <i>k</i>=4 (3.0 %)</td></tr>
+<tr><td>total profit</td><td>1.0866 &times; 10<sup>7</sup></td></tr>
+<tr><td>profit per equipment-second</td><td>0.15953</td></tr>
+<tr><td>bonder / tester utilization</td><td>74.6 % / <b>100.0 %</b></td></tr>
+<tr><td>bottleneck</td><td><b>tester</b> (dual 0.31240 vs. 0.00000)</td></tr>
+<tr><td>outgoing DPPM</td><td>200 ppm (binding)</td></tr>
+</table>
+
+<figure class="span">
+  <img src="fig/fig1_bottleneck_vs_quality.png" alt="Bottleneck transition versus quality target">
+  <figcaption>Fig. 1.&nbsp;&nbsp;Bottleneck transition ratio versus outgoing quality limit. Below the transition ratio the tester is the bottleneck; above it the bonder is. The curve is flat above the 425 ppm knee and rises steeply below it.</figcaption>
+</figure>
+
+<h3>B.&nbsp;&nbsp;Expansion Priority Is Set by the Quality Target</h3>
+
+<div class="tcap">Table IX<br>Bottleneck transition ratio by quality limit</div>
+<table>
+<tr><th>DPPM limit</th><th>Transition <i>H<sub>t</sub></i>/<i>H<sub>b</sub></i></th></tr>
+<tr><td>200 ppm</td><td><b>1.1398</b></td></tr>
+<tr><td>250 ppm</td><td>0.8693</td></tr>
+<tr><td>300 ppm</td><td>0.7737</td></tr>
+<tr><td>400 ppm</td><td>0.5928</td></tr>
+<tr><td>&ge; 425 ppm</td><td><b>0.5837 (flat)</b></td></tr>
+</table>
+
+<p>The curve breaks at 425 ppm into two regimes. If the quality target is looser than 425 ppm, the expansion priority is independent of quality; if tighter, quality determines it, and at 200 ppm <i>tester capacity must exceed bonder capacity</i>. Tightening quality raises inspection load, so the tester saturates first. This statement cannot be derived unless capacity and quality constraints coexist in one model: the prior cost lineage has no capacity, and the capacity literature has no quality.</p>
+
+<figure class="span">
+  <img src="fig/fig2_mix_vs_yield.png" alt="16-high share versus per-layer yield">
+  <figcaption>Fig. 2.&nbsp;&nbsp;Share of 16-high stacks in the optimal mix versus per-layer bonding yield. Filled markers indicate that the customer capacity constraint is binding. The two ends of the curve arise from opposite causes.</figcaption>
+</figure>
+
+<h3>C.&nbsp;&nbsp;Two Distinct Causes for 16-High Stacks</h3>
+
+<div class="tcap">Table X<br>Regimes over per-layer yield</div>
+<table>
+<tr><th>Range of <i>x</i></th><th>16-high share</th><th>Binding constraints</th></tr>
+<tr><td>&le; 0.9500</td><td>15&ndash;44 %</td><td>C2 binding &mdash; <b>demand forces</b></td></tr>
+<tr><td>0.9525&ndash;0.9625</td><td><b>0 %</b></td><td>C2 slack &mdash; economics cannot justify</td></tr>
+<tr><td>0.9650&ndash;0.9800</td><td>3&ndash;80 %</td><td>transition; binding set varies</td></tr>
+<tr><td>&ge; 0.9825</td><td><b>100 %</b></td><td>C1-a only &mdash; <b>economics selects</b></td></tr>
+</table>
+
+<p>The same observation&mdash;the presence of 16-high stacks&mdash;has opposite causes at the two ends. At low yield the total capacity target must be met even with poor yield; at high yield the demand constraint goes slack and equipment economics alone selects the tall configuration. The interpretation rule that distinguishes these two cases was fixed before execution, so no post-hoc narrative was fitted to the outcome.</p>
+
+<figure class="span">
+  <img src="fig/fig3_dppm_floor_vs_final_test.png" alt="DPPM floor versus final-test detection rate">
+  <figcaption>Fig. 3.&nbsp;&nbsp;Lowest attainable outgoing DPPM for a 12-high stack when every eligible in-line inspection is used, as a function of the final-test detection rate. Open circles mark the no-final-test case.</figcaption>
+</figure>
+
+<h3>D.&nbsp;&nbsp;Inspection Frequency Cannot Substitute for Detection</h3>
+
+<p class="noindent">With no final test the attainable floor is 1,908.9 ppm; at &beta;<sub>f</sub> = 0.95 it is 95.6 ppm. Even inspecting at every layer cannot bring outgoing quality below 1,000 ppm in the absence of a final test, because a defect missed once is missed again with the same probability. The feasibility floor found by MILP bisection matches the closed-form value to the digits reported, so this is a structural result confirmed on two independent routes rather than a fitted number.</p>
+
+<h3>E.&nbsp;&nbsp;Parameter Uncertainty and Value of Information</h3>
+
+<p class="noindent">Ten parameters were sampled jointly from triangular distributions over 2,000 draws; 953 draws (47.6 %) were feasible. Infeasibility arises mostly when &beta; or &beta;<sub>f</sub> is too low to meet 200 ppm.</p>
+
+<div class="tcap">Table XI<br>Monte Carlo distribution (n = 953)</div>
+<table>
+<tr><th>Quantity</th><th>Median</th><th>90 % interval</th></tr>
+<tr><td>8-high share</td><td>35.9 %</td><td>0&ndash;70.9 %</td></tr>
+<tr><td>12-high share</td><td>31.3 %</td><td>0&ndash;100 %</td></tr>
+<tr><td>16-high share</td><td>20.6 %</td><td>0&ndash;98.3 %</td></tr>
+<tr><td>profit per equipment-second</td><td>0.1527</td><td>0.0757&ndash;0.2888</td></tr>
+<tr><td><b>P(bottleneck = tester)</b></td><td colspan="2"><b>71.9 %</b></td></tr>
+</table>
+
+<p>The confidence interval on stack-height share spans zero to one hundred percent, so the statement &ldquo;the optimum is 12-high&rdquo; cannot be asserted. The bottleneck, by contrast, is the tester with roughly 72 % probability. The asymmetry itself is a result.</p>
+
+<div class="tcap">Table XII<br>Correlation of parameters with outcomes</div>
+<table>
+<tr><th>Parameter</th><th>16-high share</th><th>profit/s</th><th>tester bottleneck</th></tr>
+<tr><td><b><i>x</i></b></td><td><b>+0.476</b></td><td>+0.326</td><td>&minus;0.030</td></tr>
+<tr><td><i>c</i><sub>fix,b</sub></td><td>+0.136</td><td>&minus;0.057</td><td>+0.028</td></tr>
+<tr><td><i>a</i></td><td>+0.132</td><td>&minus;0.196</td><td>&minus;0.139</td></tr>
+<tr><td><b>&theta;</b></td><td>&minus;0.124</td><td>&minus;0.266</td><td><b>+0.417</b></td></tr>
+<tr><td>&beta;</td><td>&minus;0.106</td><td>+0.005</td><td>&minus;0.212</td></tr>
+<tr><td>&beta;<sub>f</sub></td><td>&minus;0.085</td><td>+0.080</td><td>&minus;0.187</td></tr>
+<tr><td><i>r</i></td><td>&minus;0.073</td><td>+0.741</td><td>&minus;0.011</td></tr>
+<tr><td><i>c</i><sub>test</sub></td><td>&minus;0.062</td><td>+0.000</td><td>+0.018</td></tr>
+<tr><td><i>c</i><sub>base</sub></td><td>+0.031</td><td>&minus;0.044</td><td>&minus;0.028</td></tr>
+<tr><td>&rho;</td><td>+0.024</td><td>&minus;0.155</td><td>&minus;0.151</td></tr>
+</table>
+
+<blockquote><p>To decide the stack-height composition, per-layer bonding yield <i>x</i> must be measured most accurately (+0.476); cost coefficients may be off by 50 % without changing the conclusion. To decide which equipment to add, the inspection-time ratio &theta; must be measured most accurately (+0.417)&mdash;more than twice as important as the capacity ratio &rho; itself.</p></blockquote>
+
+<p><i>Caution.</i> The +0.741 correlation of <i>r</i> with profit carries no information value: <i>r</i> is a revenue scale parameter, so proportionality is trivial, and its correlation with stack-height composition is &minus;0.073, effectively zero. Correlations that do not change a decision must be excluded from a value-of-information reading.</p>
+
+<p>The low correlation of &beta;<sub>f</sub> is likewise part of the conclusion. Combined with Section VII-D: <i>the existence of a final test is decisive, while the precision of its detection rate is not</i>. The evidence for the first clause is the inversion table, and for the second the Monte Carlo; the two sources must not be conflated.</p>
+
+<h3>F.&nbsp;&nbsp;The Bottleneck Inverts the Inspection Policy</h3>
+
+<p class="noindent">Activating one constraint at a time reverses the optimal inspection period: with only C1-a active the optimum is <i>k</i> = 1 (100 %), and with only C1-b active it is <i>k</i> = 4 (97 %).</p>
+
+<blockquote><p>When the bonder is the bottleneck, inspect as often as possible; when the tester is the bottleneck, as rarely as possible.</p></blockquote>
+
+<p>If the bonder is the bottleneck, tester time is effectively free, so frequent inspection that discards defects early and saves bonder time is a net gain. If the tester is the bottleneck, inspection itself consumes the scarce resource. This is direct evidence that the early-discard mechanism of Assumption 2 operates, reproduced at the limits.</p>
+
+<h3>G.&nbsp;&nbsp;Attribution of the Product Mix</h3>
+
+<div class="tcap">Table XIII<br>Constraint attribution</div>
+<table>
+<tr><th>Active constraints</th><th>Height allocation</th><th>Kinds</th></tr>
+<tr><td>C3 only</td><td>12-high 100 %</td><td>1</td></tr>
+<tr><td>C4 only</td><td>12-high 100 %</td><td>1</td></tr>
+<tr><td>C2 only</td><td>12-high 100 %</td><td>1</td></tr>
+<tr><td>C1-a + C1-b</td><td>12-high 58 %, 16-high 42 %</td><td>2</td></tr>
+<tr><td>C1-a + C1-b + C4</td><td>8/12/16-high 48/20/32 %</td><td>3</td></tr>
+</table>
+
+<p>The number of distinct products cannot exceed the number of simultaneously binding constraints. The backbone of the mix is the joint binding of the two capacity constraints, whereas <i>C4 constrains the inspection period</i>. This is the mirror image of the property in Section III-C: DPPM is determined by <i>k</i>, not by <i>L</i>; correspondingly C4 restricts <i>k</i>, not <i>L</i>.</p>
+
+<h3>H.&nbsp;&nbsp;Height Diversity and Period Diversity Are Substitutes</h3>
+
+<p class="noindent">Releasing the single-period restriction of Assumption 3 so that a 12-high stack may carry both <i>k</i> = 2 and <i>k</i> = 4 makes the 16-high configuration disappear, replaced by 12-high with <i>k</i> = 4 (16-high 32 % &rarr; 0 %; 12-high <i>k</i>=4 0 % &rarr; 29 %).</p>
+
+<blockquote><p>Diversifying stack height and diversifying inspection period are substitutes for one another.</p></blockquote>
+
+<p>If a 12-high stack can carry two periods, the 16-high configuration is unnecessary; if it cannot, the 16-high configuration takes over that role. The observation is available only because height and inspection are decided jointly, and it does not appear in prior work. The opportunity cost of the restriction is +0.11 % of total profit with the quality constraint active and +1.43 % without&mdash;that is, reflecting line-operation reality costs less than 1.5 %.</p>
+
+<h3>I.&nbsp;&nbsp;Robustness of Revenue Linearity</h3>
+
+<p class="noindent">A per-layer price premium for taller stacks was tested as a scenario. The optimal mix is unchanged up to a 15 % premium on 16-high and first inverts at 25 %. Since observed evidence lies in the 5&ndash;15 % range, this falsifiability is reported as evidence of robustness rather than as a limitation.</p>
+
+<h2>VIII.&nbsp;&nbsp;Discussion and Limitations</h2>
+
+<h3>A.&nbsp;&nbsp;Unknown Parameters</h3>
+
+<p class="noindent">The coefficients <i>a</i>, &theta;, <i>r</i>, <i>c</i><sub>base</sub> and <i>c</i><sub>fix,b</sub> have no public absolute values and are handled as triangular scenarios. &beta; is taken from a general chiplet-coverage study rather than HBM measurement. &beta;<sub>f</sub> is confirmed to exist by the literature but its value is inverted from the model. The industry outgoing DPPM target could not be obtained. The mechanism by which 8-high stacks enter the mix remains unexplained.</p>
+
+<p>Two literature searches for &theta; and <i>a</i> failed to obtain absolute values. The tester UPH formula and parallel site counts were found, but soak, test, and index times were not, so inversion does not close. A by-product was nevertheless obtained: the internal composition of <i>t</i><sub>stack</sub> decomposes into 2&ndash;3 s of fine alignment and a 3&ndash;8 s thermocompression cycle, whose sum independently supports the 5.4 s baseline.</p>
+
+<h3>B.&nbsp;&nbsp;Why No Comparison to Industry DPPM</h3>
+
+<p class="noindent">The outgoing DPPM of this model counts undetected bonding defects only, whereas industry DPPM includes die-level defects, early reliability failures, and parametric drift; the model value is therefore a subset. In addition, no public HBM outgoing DPPM target was obtained, so the denominator convention (per stack or per die) could not be confirmed. <i>The comparison was therefore not performed.</i> Declining to present an unsupported comparison is the honest treatment.</p>
+
+<h3>C.&nbsp;&nbsp;Conclusions Requiring Explicit Conditions</h3>
+
+<div class="tcap">Table XIV<br>Conditional statements</div>
+<table>
+<tr><th>Statement</th><th>Condition</th></tr>
+<tr><td>&ldquo;&beta; &le; 0.88 is infeasible even at <i>k</i>=1&rdquo;</td><td>&beta;<sub>f</sub>=0.95, limit 200 ppm</td></tr>
+<tr><td>&ldquo;over half of parameter draws are infeasible&rdquo;</td><td>same, plus &beta;, &beta;<sub>f</sub> distributions</td></tr>
+<tr><td>&ldquo;baseline mix is 8k2 + 12k2 + 16k4&rdquo;</td><td>&ge;12-high demand share 0.70</td></tr>
+<tr><td>&ldquo;height allocation in the transition band&rdquo;</td><td>under Assumption 3</td></tr>
+</table>
+
+<h3>D.&nbsp;&nbsp;What Cannot Yet Be Claimed</h3>
+
+<p class="noindent">The statement &ldquo;the optimal stack height is 12&rdquo; cannot be made: the 90 % Monte Carlo interval spans zero to one hundred percent. This is not a defect but a consequence of the design in Section V-D. What the study offers instead is the set of threshold conditions at which the answer flips.</p>
+
+<h3>E.&nbsp;&nbsp;Methodological Record</h3>
+
+<p class="noindent">Three errors were found and corrected during the work. Only the corrected forms appear above, but each carries a methodological lesson.</p>
+
+<ol>
+<li>An objective function that appeared sound at design time collapsed once implemented. The scale invariance of the fractional form was invisible on paper and surfaced only when every shadow price returned zero. Having &ldquo;inspect the shadow prices&rdquo; pre-specified as a validation item is what caught it early.</li>
+<li>Conclusions from two phases were mutually incompatible yet internally consistent within each phase, and the contradiction went unnoticed. Cross-phase consistency checking must be a procedure, not an afterthought.</li>
+<li>A mechanism asserted without testing was refuted. The appearance of 8-high stacks was attributed to the single-period restriction; releasing the restriction increased the 8-high share instead and removed the 16-high configuration (Section VII-H). A mechanism must not be written as settled before a falsification test.</li>
+</ol>
+
+<h2>IX.&nbsp;&nbsp;Conclusion</h2>
+
+<p class="noindent">A mixed-integer linear program was presented that jointly determines the HBM stack-height mix and the layer-wise inspection period under assembly and test throughput constraints. In contrast to the prior lineage, which addresses cost alone and treats the layer count as given, the bonder and tester are modeled as separate resources and the layer count is promoted to a decision variable.</p>
+
+<p>No general rule for the optimal stack height can be stated, because the optimum depends on the interplay of parameter values&mdash;the same conclusion reached by the reference work. What this study can state are the threshold conditions at which the answer changes:</p>
+
+<ul>
+<li>the bottleneck transition ratio is a function of the quality target, splitting at 425 ppm into a constant regime and a steeply rising one;</li>
+<li>the cause of 16-high adoption differs by yield regime, between demand coercion and economic selection;</li>
+<li>the character of in-line inspection splits at 277 ppm between a quality instrument and a pure equipment-time saving;</li>
+<li>for the final test, existence is decisive and detection precision is not.</li>
+</ul>
+
+<p>A value-of-information analysis further separated which parameters must be measured accurately from those for which estimates suffice. Converting the absence of data into the conclusion &ldquo;what must be measured&rdquo; is the methodological contribution.</p>
+
+<p><i>Future work.</i> Allocating investment between in-line and final inspection&mdash;a two-dimensional optimization over &beta; and &beta;<sub>f</sub>&mdash;was not attempted, because with both parameters unknown it would amount to constructing an unfounded axis. Discrete-event simulation of line dynamics is likewise out of scope.</p>
+
+<div class="refs">
+<h2>References</h2>
+<ol>
+<li>M. Agrawal and K. Chakrabarty, &ldquo;Test-Cost Modeling and Optimal Test-Flow Selection of 3D-Stacked ICs,&rdquo; Duke Univ. Tech. Rep. ECE-2015-01; <i>IEEE Trans. CAD</i>, vol. 34, pp. 1523&ndash;1536, 2015. Preliminary version: <i>Proc. IEEE VTS</i>, 2013.</li>
+<li>M. Taouil, S. Hamdioui, C. I. M. Beenakker, and E. J. Marinissen, &ldquo;Test Impact on the Overall Die-to-Wafer 3D Stacked IC Cost,&rdquo; <i>JETTA</i>, vol. 28, no. 1, 2012, doi:10.1007/s10836-011-5270-3.</li>
+<li>A. Graening, J. Talukdar, S. Pal, K. Chakrabarty, and P. Gupta, &ldquo;CATCH: a Cost Analysis Tool for Co-optimization of chiplet-based Heterogeneous systems,&rdquo; <i>IEEE Trans. CAD</i>, 2025, doi:10.1109/TCAD.2025.3597570.</li>
+<li>T. Williams and N. Brown, &ldquo;Defect Level as a Function of Fault Coverage,&rdquo; <i>IEEE Trans. Comput.</i>, vol. C-30, pp. 987&ndash;988, 1981.</li>
+<li>M. Taouil, S. Hamdioui, E. J. Marinissen, and S. Bhawmik, &ldquo;3D-COSTAR: A Cost Model For 3D Stacked ICs,&rdquo; <i>3D-Test</i>, 2012.</li>
+<li>M. Taouil <i>et al.</i>, &ldquo;Using 3D-COSTAR for 2.5D Test Cost Optimization,&rdquo; <i>3DIC</i>, 2013, doi:10.1109/3DIC.2013.6702351.</li>
+<li>M. Taouil <i>et al.</i>, &ldquo;Impact of Mid-Bond Testing in 3D Stacked ICs,&rdquo; <i>DFT</i>, 2013.</li>
+<li>M. Taouil, S. Hamdioui, and E. J. Marinissen, &ldquo;Quality versus Cost Analysis for 3D Stacked ICs,&rdquo; <i>Proc. VTS</i>, 2014, doi:10.1109/VTS.2014.6818763.</li>
+<li>&ldquo;Yield and Cost Modeling for 3D Chip Stack Technologies,&rdquo; IEEE Xplore 4114978, 2006.</li>
+<li>A. K. Coskun, A. B. Kahng, and T. S. Rosing, &ldquo;Temperature- and Cost-Aware Design of 3D Multiprocessor Architectures,&rdquo; <i>DSD</i>, 2009.</li>
+<li>N. P. Rougier, M. Droettboom, and P. E. Bourne, &ldquo;Ten Simple Rules for Better Figures,&rdquo; <i>PLOS Comput. Biol.</i>, vol. 10, no. 9, e1003833, 2014, doi:10.1371/journal.pcbi.1003833.</li>
+<li>M. Okabe and K. Ito, &ldquo;Color Universal Design,&rdquo; 2008. [Online]. Available: https://jfly.uni-koeln.de/color/</li>
+</ol>
+</div>
+
+<div class="appendix">
+<h2>Appendix A&nbsp;&nbsp;Derivation of Early-Discard Expectations</h2>
+
+<p class="noindent">For an <i>L</i>-layer stack the probability that the first defect occurs at layer <i>i</i> is <i>x</i><sup>i&minus;1</sup>(1 &minus; <i>x</i>). Inspections occur at layers <i>k</i>, 2<i>k</i>, &hellip;, <i>L</i>, and a defect at layer <i>i</i> is detected with probability &beta; at each inspection point at or beyond <i>i</i>.</p>
+
+<p>Let the index of the first eligible inspection point be &lceil;<i>i</i>/<i>k</i>&rceil;. The number of remaining opportunities is <i>m</i> = <i>L</i>/<i>k</i> &minus; &lceil;<i>i</i>/<i>k</i>&rceil; + 1. Detection at the <i>j</i>-th opportunity has probability (1 &minus; &beta;)<sup>j&minus;1</sup>&beta;, at which point (&lceil;<i>i</i>/<i>k</i>&rceil; + <i>j</i> &minus; 1)<i>k</i> layers have been stacked. All <i>m</i> opportunities are missed with probability (1 &minus; &beta;)<sup>m</sup>, in which case the stack reaches <i>L</i> layers and becomes an escape. Hence</p>
+
+<span class="eq">E[layer] = <i>x<sup>L</sup>L</i> + &Sigma;<sub>i</sub> <i>x</i><sup>i&minus;1</sup>(1&minus;<i>x</i>)&thinsp;[&thinsp;&Sigma;<sub>j</sub> (1&minus;&beta;)<sup>j&minus;1</sup>&beta;(&lceil;<i>i</i>/<i>k</i>&rceil;+<i>j</i>&minus;1)<i>k</i> + (1&minus;&beta;)<sup>m</sup><i>L</i>&thinsp;]</span>
+
+<p class="noindent">E[test] follows from the same branching with the stacked layer count divided by <i>k</i>.</p>
+
+<p><i>Special case.</i> For <i>k</i> = 1 and &beta; = 1 every defect is detected on occurrence, so E[layer] = (1 &minus; <i>x<sup>L</sup></i>)/(1 &minus; <i>x</i>), the truncated expectation of trials until first failure. At <i>x</i> = 0.965 this equals 7.09, 9.94, and 12.42 for <i>L</i> = 8, 12, 16.</p>
+
+<p><i>Final test.</i> Under Assumption 4 escapes are additionally detected with probability &beta;<sub>f</sub>, so the shipped undetected fraction is <i>p</i><sub>escape</sub>(1 &minus; &beta;<sub>f</sub>). Because the final test is applied to every completed stack, it is a fixed component independent of (<i>L</i>, <i>k</i>): it adds a constant to the objective and does not change the optimum. It is therefore charged to escapes only and not to time or cost.</p>
+
+<h2>Appendix B&nbsp;&nbsp;Reproduction</h2>
+
+<p class="noindent">Installing the two dependencies and running <code>python src/run_all.py</code> executes a ten-stage pipeline in about four minutes and regenerates every artifact under <code>data/</code> and <code>figures/</code>. The linear-programming solver is the CBC binary bundled with PuLP, so no separate installation is required. The stages are: validation and threshold computation; the coupled MILP with checks 7&ndash;9; scenarios and Monte Carlo; the DPPM-limit sweep; demand-segment inversion; bottleneck bisection; the transition curve; the yield sweep; figure generation; and automated figure inspection. Individual falsification scripts are excluded from the pipeline and run on demand.</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -39,7 +39,7 @@ HBM(고대역폭 메모리)은 DRAM 칩을 여러 장 쌓아 만든다. 높이 �
 **⑤ 무엇을 정확히 측정해야 하는지가 갈린다.**
 파라미터 9개를 삼각분포로 동시에 흔든 몬테카를로 2,000회 결과, 층수 구성은 **층당 접합 수율 x**(상관 +0.476)가, 병목 위치는 **검사시간 배수 θ = t_test/t_stack**(+0.417)이 지배한다. 반면 원가 항목은 상관 0.06 미만으로, 50% 틀려도 결론이 바뀌지 않는다.
 
-전체 논의는 **[최종 리포트 — `docs/11_Report.md`](docs/11_Report.md)**에 있다. 수치의 정본은 [`docs/07_Results.md`](docs/07_Results.md)다.
+전체 논의는 **[최종 리포트 — `docs/11_Report.md`](docs/11_Report.md)**에 있고, IEEE 2단으로 조판한 논문판이 **[한국어](paper/HBM_Stack_Mix_Optimization_KO.pdf)** · **[English](paper/HBM_Stack_Mix_Optimization_EN.pdf)** 두 판으로 있다. 수치의 정본은 [`docs/07_Results.md`](docs/07_Results.md)다.
 
 ---
 
@@ -167,8 +167,10 @@ notes/      작업 기록
   10_Work_Order.md       미결 과제 지시서
   verification_notes.md  실험 노트 (시간순)
 
+paper/      IEEE 2단 조판 논문 (KO/EN PDF + HTML 원고 + 조판 CSS + 빌드 스크립트)
+  fig/                캡션 미포함 그림 — 조판 엔진이 캡션을 붙이므로 중복 방지
 src/        코드 — 코어 3 · 분석 6 · 그림 2 · 검증 4 · 실행 1
-figures/    대표 그림 3장 (200 dpi)
+figures/    대표 그림 3장 (200 dpi, 캡션 포함)
 data/       산출물 17
   archive/            파라미터 정정 전 로그 — 결론 불변을 대조하기 위한 기록 (설명은 해당 폴더 README)
 archive/    구 그림 스크립트
