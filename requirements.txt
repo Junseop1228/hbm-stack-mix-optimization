@@ -1,0 +1,10 @@
+# HBM Stack Mix Optimization — 실행 의존성
+# Python 3.11+ (개발·검증 환경: 3.13.5, Windows)
+#
+#   pip install -r requirements.txt
+#
+# 선형계획 솔버는 PuLP 에 동봉된 CBC 를 쓴다. 별도 설치가 필요 없다.
+# Gurobi 는 쓰지 않는다 — 9개 구성 규모에 과잉이다 (docs/09_Roadmap.md 7절).
+
+PuLP>=3.0
+matplotlib>=3.8

@@ -1,0 +1,16 @@
+# ── 줄바꿈 정규화 ──────────────────────────────────────
+# 저장소에는 LF 로 저장하고, 체크아웃 시 OS 기본을 따른다.
+* text=auto eol=lf
+
+*.png binary
+*.pdf binary
+
+# ── GitHub Linguist ────────────────────────────────────
+# 산출물·아카이브가 언어 통계를 왜곡하지 않도록 제외한다.
+data/**      linguist-generated=true
+figures/**   linguist-generated=true
+archive/**   linguist-vendored=true
+
+# 문서 비중이 실제보다 낮게 잡히지 않도록 명시
+docs/**      linguist-documentation=false
+notes/**     linguist-documentation=true
