@@ -116,6 +116,17 @@ class Params:
     t_stack: float = 5.4      # 초/층. SemiAnalysis 3.6~7.2 중앙 [B등급]
     a: float = 3.0            # t_fix_a / t_stack               [C등급 ★핵심]
     theta: float = 3.0        # t_test  / t_stack               [C등급]
+    phi_final: float = 1.0    # t_final / t_test                [미확보 ★2026.08.12 신규]
+    # 최종 검사(가정 4)는 몰딩 후 완결 스택 전량이 거친다. HBM 최종 검사는
+    # full-speed·전 채널·soak 를 포함하므로 in-line 개방/단락 검사보다 길다.
+    # 절대값·비율 모두 공개 자료에 없다 → 시나리오 축으로 다룬다 (1, 3, 10).
+    #
+    # ★ 기준값을 분포의 최소값 1.0 으로 택한 이유
+    #   φ_f 를 키우면 최종 검사 시간이 층수 무관 고정 부하로 작용해 높은 층수가
+    #   유리해진다. 즉 φ_f 를 크게 잡으면 M1 정정으로 새로 얻은 결론(16단 우위)이
+    #   강해진다. 근거 없이 그 방향을 택하는 것은 결과 맞춤이다. 따라서 M1 을
+    #   정정하는 최소값(최종 검사가 in-line 검사 1회와 같은 시간)을 기준으로 두고,
+    #   보고하는 효과를 하한으로 취급한다. φ_f 의존은 final_test_sweep.py 로 별도 보고.
 
     # --- Block T : 원가, core die = 1.0 정규화 ---
     r: float = 5.0            # 층당 매출
@@ -138,6 +149,11 @@ class Params:
     @property
     def t_test(self):
         return self.theta * self.t_stack
+
+    @property
+    def t_final(self):
+        """최종 검사 1회 시간. 완결 스택 전량이 거친다."""
+        return self.phi_final * self.t_test
 
 
 # ======================================================================
@@ -188,7 +204,12 @@ def coefficients(p: Params):
 
             # 설비 점유시간 — t_fix_b 는 캐파식에서 제외 (06_Parameters 3.3)
             tau_bond = p.t_fix_a + p.t_stack * y["e_layer"]
-            tau_test = p.t_test * y["e_test"]
+            # ★ M1 정정 (2026.08.12) — 최종 검사의 테스터 시간을 포함한다.
+            # 종전에는 "(L,k) 무관 상수" 로 보고 제외했으나, 최종 검사를 받는
+            # 스택 수는 p_ship(L,k) 이므로 조기 폐기를 통해 k·L 에 의존한다.
+            # 원가식이 c_fix_b 를 p_ship 에 곱하는 것과 같은 성질의 항이다.
+            # 최종 검사 비용은 c_fix_b 에 포함된 것으로 재정의한다(추가 미지수 없음).
+            tau_test = p.t_test * y["e_test"] + p.t_final * y["p_ship"]
 
             # 원가 — t_fix_b 의 원가분은 여기 남는다
             cost = (p.c_base

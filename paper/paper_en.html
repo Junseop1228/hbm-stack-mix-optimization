@@ -11,16 +11,19 @@
 <div class="titleblock">
   <h1>Joint Optimization of Stack-Height Mix and Layer-Wise Inspection Period<br>for HBM Under Assembly and Test Throughput Constraints</h1>
   <div class="meta">
-    Technical Report &nbsp;|&nbsp; Version 1.0 &nbsp;|&nbsp; August 2026<br>
+    Technical Report &nbsp;|&nbsp; Version 2.0 &nbsp;|&nbsp; August 2026<br>
     <span class="repo">github.com/Junseop1228/hbm-stack-mix-optimization</span><br>
     Formatting follows the IEEE conference two-column template.
     Section structure follows M. Agrawal and K. Chakrabarty [1], the work this study extends.
   </div>
 </div>
 
-<p class="abstract"><span class="lead">Abstract—</span>High Bandwidth Memory (HBM) is manufactured by vertically stacking DRAM dies. Capacity grows linearly with the number of layers, but compound yield decays exponentially. Periodic inspection during stacking discards defective stacks early and thereby saves downstream equipment time, yet inspection itself consumes tester time. The established cost-modeling literature for 3D-stacked ICs optimizes cost alone, does not model equipment throughput, treats the number of layers as a given parameter, and is limited to at most five dies because the search space grows as O(N<sup>l<sup>2</sup></sup>). This report constrains the search structure to layer-wise periodic patterns, which makes 12- to 16-high stacks tractable, and adds bonder and tester throughput constraints together with a stack-height product mix as decision variables in a mixed-integer linear program. Because the absolute values of the equipment and cost coefficients are not public, the input is treated as a parameter space rather than a data set, and conclusions are reported probabilistically through triangular-distribution Monte Carlo sampling. Five results follow. First, the priority for equipment expansion is a function of the outgoing quality target: below a 425 ppm limit the bottleneck transition ratio is pinned at 0.584 and is insensitive to quality, whereas at 200 ppm it rises to 1.140, meaning tester capacity must exceed bonder capacity. Second, 16-high stacks appear for two opposite reasons&mdash;customer capacity demand forces them at low yield, while equipment economics selects them at high yield. Third, without a final test no inspection frequency reaches 1,000 ppm; the floor is 1,908.9 ppm. Fourth, when the bonder is the bottleneck the optimal policy is to inspect as often as possible, and the reverse holds when the tester is the bottleneck. Fifth, a value-of-information analysis shows that stack-height composition is governed by per-layer bonding yield (correlation +0.476) and bottleneck location by the inspection-time ratio (+0.417), while cost coefficients are immaterial (below 0.06).</p>
+<p class="noindent" style="border:0.8pt solid #000;padding:5pt;margin:0 0 9pt 0;font-size:8.5pt;line-height:10.5pt;text-indent:0">
+<b>Revision notice (v2, Aug 2026).</b> Following external review, the <b>tester time of the final test is now included in &tau;<sub>test</sub></b>. The number of stacks reaching final test is p<sub>ship</sub>(L,k), so it is not an (L,k)-independent constant. This correction changed the baseline mix, the bottleneck transition ratio and the Monte Carlo distribution, and <b>8-high stacks disappeared from the optimal mix</b> &mdash; their previously unexplained appearance was an artifact of the omitted final-test time. The new parameter &phi;<sub>f</sub> = t<sub>final</sub>/t<sub>test</sub> is unknown, so its baseline is set to the minimum of its distribution (1.0) and the reported effect is treated as a lower bound. In addition, a general closed form for the outgoing DPPM floor and its <b>independence of stack height</b> are derived (Appendix A), and the general expressions are independently verified by event-level Monte Carlo (108 items). Canonical figures: <code>docs/07_Results.md</code> v2.0; review verdicts: <code>notes/12_Review_Response.md</code>.
+</p>
+<p class="abstract"><span class="lead">Abstract—</span>High Bandwidth Memory (HBM) is manufactured by vertically stacking DRAM dies. Capacity grows linearly with the number of layers, but compound yield decays exponentially. Periodic inspection during stacking discards defective stacks early and thereby saves downstream equipment time, yet inspection itself consumes tester time. The established cost-modeling literature for 3D-stacked ICs optimizes cost alone, does not model equipment throughput, treats the number of layers as a given parameter, and is limited to at most five dies because the search space grows as O(N<sup>l<sup>2</sup></sup>). This report constrains the search structure to layer-wise periodic patterns, which makes 12- to 16-high stacks tractable, and adds bonder and tester throughput constraints together with a stack-height product mix as decision variables in a mixed-integer linear program. Because the absolute values of the equipment and cost coefficients are not public, the input is treated as a parameter space rather than a data set, and conclusions are reported probabilistically through triangular-distribution Monte Carlo sampling. Five results follow. First, the priority for equipment expansion is a function of the outgoing quality target: <b>above</b> a 425 ppm limit the bottleneck transition ratio is pinned at 0.728 and is insensitive to quality, whereas at 200 ppm it rises to 1.287, meaning tester capacity must exceed bonder capacity. Second, 16-high stacks appear for two opposite reasons&mdash;customer capacity demand forces them at low yield, while equipment economics selects them at high yield. Third, without a final test no inspection frequency reaches 1,000 ppm; the floor is 1,908.9 ppm. Fourth, when the bonder is the bottleneck the optimal policy is to inspect as often as possible, and the reverse holds when the tester is the bottleneck. Fifth, a global sensitivity analysis (Pearson correlation) shows that stack-height composition is governed by per-layer bonding yield (correlation +0.476) and bottleneck location by the inspection-time ratio (+0.417), while cost coefficients are immaterial (below 0.06).</p>
 
-<p class="keywords"><span class="lead">Index Terms—</span>HBM, 3D stacking, production allocation, mixed-integer linear programming, capacity constraint, inspection period, bottleneck analysis, Monte Carlo, value of information.</p>
+<p class="keywords"><span class="lead">Index Terms—</span>HBM, 3D stacking, production allocation, mixed-integer linear programming, capacity constraint, inspection period, bottleneck analysis, Monte Carlo, global sensitivity analysis.</p>
 
 <h2>I.&nbsp;&nbsp;Introduction</h2>
 
@@ -41,7 +44,7 @@
 <li><i>Stack-height product mix.</i> The situation in which heterogeneous products of different heights share one line is modeled. The prior lineage assumes a single product and a single stack throughout.</li>
 <li><i>Number of layers as a decision variable.</i> The layer count <i>l</i>, a given parameter in prior work, is promoted to a decision variable.</li>
 <li><i>Tractability at realistic stack sizes.</i> Restricting the search to layer-wise periodic patterns <i>k</i> &isin; {1, 2, 4} avoids the O(N<sup>l<sup>2</sup></sup>) blow-up and admits 12- to 16-high stacks.</li>
-<li><i>Conclusions over a parameter space.</i> Coefficients whose absolute values are confidential are represented by triangular distributions, and the report states threshold conditions and confidence intervals rather than point estimates. A value-of-information analysis identifies which parameters must be measured accurately and which need not be.</li>
+<li><i>Conclusions over a parameter space.</i> Coefficients whose absolute values are confidential are represented by triangular distributions, and the report states threshold conditions and confidence intervals rather than point estimates. A global sensitivity analysis identifies which parameters must be measured accurately and which need not be.</li>
 </ul>
 
 <h3>B.&nbsp;&nbsp;Organization</h3>
@@ -274,7 +277,7 @@
 
 <p class="noindent">Since the claimed contribution is the addition of equipment constraints, removing them must reduce the model to the problem solved in prior work. A different answer would indicate either a modeling error or an overstated contribution.</p>
 
-<p>Merging bonder and tester into a single pool and releasing the demand and quality constraints yields an interior optimum at 12 layers with unimodality confirmed, a single-pool shadow price of 0.20840, and a directly computed profit per equipment-second of 0.20840. <i>The dual and the direct computation agree to five decimal places.</i> This confirms the claim of Section IV-B and simultaneously establishes that without a capacity constraint the quantity is undefined.</p>
+<p>Merging bonder and tester into a single pool and releasing the demand and quality constraints yields an interior optimum at 12 layers with unimodality confirmed, a single-pool shadow price of 0.19096, and a directly computed profit per equipment-second of 0.19096. <i>The dual and the direct computation agree to five decimal places.</i> This confirms the claim of Section IV-B and simultaneously establishes that without a capacity constraint the quantity is undefined.</p>
 
 <h3>C.&nbsp;&nbsp;Independent Cross-Check</h3>
 
@@ -289,11 +292,11 @@
 <div class="tcap">Table VIII<br>Baseline optimum</div>
 <table>
 <tr><th>Quantity</th><th>Value</th></tr>
-<tr><td>production mix</td><td>8-high <i>k</i>=2 (69.3 %), 12-high <i>k</i>=2 (27.7 %), 16-high <i>k</i>=4 (3.0 %)</td></tr>
-<tr><td>total profit</td><td>1.0866 &times; 10<sup>7</sup></td></tr>
-<tr><td>profit per equipment-second</td><td>0.15953</td></tr>
-<tr><td>bonder / tester utilization</td><td>74.6 % / <b>100.0 %</b></td></tr>
-<tr><td>bottleneck</td><td><b>tester</b> (dual 0.31240 vs. 0.00000)</td></tr>
+<tr><td>production mix</td><td>12-high <i>k</i>=2 (97.3 %), 16-high <i>k</i>=4 (2.7 %) &mdash; <b>no 8-high</b></td></tr>
+<tr><td>total profit</td><td>9.4182 &times; 10<sup>7</sup></td></tr>
+<tr><td>profit per equipment-second</td><td>0.15036</td></tr>
+<tr><td>bonder / tester utilization</td><td>62.1 % / <b>100.0 %</b></td></tr>
+<tr><td>bottleneck</td><td><b>tester</b> (dual 0.267173 vs. 0.00000)</td></tr>
 <tr><td>outgoing DPPM</td><td>200 ppm (binding)</td></tr>
 </table>
 
@@ -307,11 +310,11 @@
 <div class="tcap">Table IX<br>Bottleneck transition ratio by quality limit</div>
 <table>
 <tr><th>DPPM limit</th><th>Transition <i>H<sub>t</sub></i>/<i>H<sub>b</sub></i></th></tr>
-<tr><td>200 ppm</td><td><b>1.1398</b></td></tr>
-<tr><td>250 ppm</td><td>0.8693</td></tr>
-<tr><td>300 ppm</td><td>0.7737</td></tr>
-<tr><td>400 ppm</td><td>0.5928</td></tr>
-<tr><td>&ge; 425 ppm</td><td><b>0.5837 (flat)</b></td></tr>
+<tr><td>200 ppm</td><td><b>1.2872</b></td></tr>
+<tr><td>250 ppm</td><td>1.1101</td></tr>
+<tr><td>300 ppm</td><td>0.8995</td></tr>
+<tr><td>400 ppm</td><td>0.7389</td></tr>
+<tr><td>&ge; 425 ppm</td><td><b>0.7284 (flat)</b></td></tr>
 </table>
 
 <p>The curve breaks at 425 ppm into two regimes. If the quality target is looser than 425 ppm, the expansion priority is independent of quality; if tighter, quality determines it, and at 200 ppm <i>tester capacity must exceed bonder capacity</i>. Tightening quality raises inspection load, so the tester saturates first. This statement cannot be derived unless capacity and quality constraints coexist in one model: the prior cost lineage has no capacity, and the capacity literature has no quality.</p>
@@ -341,20 +344,20 @@
 
 <h3>D.&nbsp;&nbsp;Inspection Frequency Cannot Substitute for Detection</h3>
 
-<p class="noindent">With no final test the attainable floor is 1,908.9 ppm; at &beta;<sub>f</sub> = 0.95 it is 95.6 ppm. Even inspecting at every layer cannot bring outgoing quality below 1,000 ppm in the absence of a final test, because a defect missed once is missed again with the same probability. The feasibility floor found by MILP bisection matches the closed-form value to the digits reported, so this is a structural result confirmed on two independent routes rather than a fitted number.</p>
+<p class="noindent">With no final test the attainable floor is 1,908.9 ppm; at &beta;<sub>f</sub> = 0.95 it is 95.6 ppm. Even inspecting at every layer cannot bring outgoing quality below 1,000 ppm in the absence of a final test, because the top <i>k</i> layers have only one inspection opportunity by construction &mdash; not because a missed defect stays undetectable, which would contradict the independence assumption (1&minus;&beta;)<sup>m</sup>. The feasibility floor found by MILP bisection matches the closed-form value to the digits reported, so this is a structural result confirmed on two independent routes rather than a fitted number.</p>
 
-<h3>E.&nbsp;&nbsp;Parameter Uncertainty and Value of Information</h3>
+<h3>E.&nbsp;&nbsp;Parameter Uncertainty and Global Sensitivity</h3>
 
-<p class="noindent">Ten parameters were sampled jointly from triangular distributions over 2,000 draws; 953 draws (47.6 %) were feasible. Infeasibility arises mostly when &beta; or &beta;<sub>f</sub> is too low to meet 200 ppm.</p>
+<p class="noindent">Ten parameters were sampled jointly from triangular distributions over 2,000 draws; 566 draws (28.3 %) were feasible. Infeasibility arises mostly when &beta; or &beta;<sub>f</sub> is too low to meet 200 ppm.</p>
 
-<div class="tcap">Table XI<br>Monte Carlo distribution (n = 953)</div>
+<div class="tcap">Table XI<br>Monte Carlo distribution (n = 566)</div>
 <table>
 <tr><th>Quantity</th><th>Median</th><th>90 % interval</th></tr>
-<tr><td>8-high share</td><td>35.9 %</td><td>0&ndash;70.9 %</td></tr>
-<tr><td>12-high share</td><td>31.3 %</td><td>0&ndash;100 %</td></tr>
-<tr><td>16-high share</td><td>20.6 %</td><td>0&ndash;98.3 %</td></tr>
-<tr><td>profit per equipment-second</td><td>0.1527</td><td>0.0757&ndash;0.2888</td></tr>
-<tr><td><b>P(bottleneck = tester)</b></td><td colspan="2"><b>71.9 %</b></td></tr>
+<tr><td>8-high share</td><td><b>0.0 %</b></td><td>0&ndash;45.3 %</td></tr>
+<tr><td>12-high share</td><td>12.5 %</td><td>0&ndash;89.9 %</td></tr>
+<tr><td>16-high share</td><td><b>70.4 %</b></td><td>4.1&ndash;100 %</td></tr>
+<tr><td>profit per equipment-second</td><td>0.1440</td><td>0.0708&ndash;0.2610</td></tr>
+<tr><td><b>P(bottleneck = tester)</b></td><td colspan="2"><b>약 87 %</b></td></tr>
 </table>
 
 <p>The confidence interval on stack-height share spans zero to one hundred percent, so the statement &ldquo;the optimum is 12-high&rdquo; cannot be asserted. The bottleneck, by contrast, is the tester with roughly 72 % probability. The asymmetry itself is a result.</p>
@@ -362,27 +365,28 @@
 <div class="tcap">Table XII<br>Correlation of parameters with outcomes</div>
 <table>
 <tr><th>Parameter</th><th>16-high share</th><th>profit/s</th><th>tester bottleneck</th></tr>
-<tr><td><b><i>x</i></b></td><td><b>+0.476</b></td><td>+0.326</td><td>&minus;0.030</td></tr>
-<tr><td><i>c</i><sub>fix,b</sub></td><td>+0.136</td><td>&minus;0.057</td><td>+0.028</td></tr>
-<tr><td><i>a</i></td><td>+0.132</td><td>&minus;0.196</td><td>&minus;0.139</td></tr>
-<tr><td><b>&theta;</b></td><td>&minus;0.124</td><td>&minus;0.266</td><td><b>+0.417</b></td></tr>
-<tr><td>&beta;</td><td>&minus;0.106</td><td>+0.005</td><td>&minus;0.212</td></tr>
-<tr><td>&beta;<sub>f</sub></td><td>&minus;0.085</td><td>+0.080</td><td>&minus;0.187</td></tr>
-<tr><td><i>r</i></td><td>&minus;0.073</td><td>+0.741</td><td>&minus;0.011</td></tr>
-<tr><td><i>c</i><sub>test</sub></td><td>&minus;0.062</td><td>+0.000</td><td>+0.018</td></tr>
-<tr><td><i>c</i><sub>base</sub></td><td>+0.031</td><td>&minus;0.044</td><td>&minus;0.028</td></tr>
-<tr><td>&rho;</td><td>+0.024</td><td>&minus;0.155</td><td>&minus;0.151</td></tr>
+<tr><td><b><i>x</i></b></td><td><b>+0.415</b></td><td>+0.314</td><td>&minus;0.016</td></tr>
+<tr><td><b>&theta;</b></td><td>+0.240</td><td>&minus;0.319</td><td><b>+0.311</b></td></tr>
+<tr><td><b>&phi;<sub>f</sub></b></td><td>+0.197</td><td>&minus;0.035</td><td><b>+0.160</b></td></tr>
+<tr><td>&beta;</td><td>+0.154</td><td>&minus;0.037</td><td>&minus;0.088</td></tr>
+<tr><td><i>c</i><sub>fix,b</sub></td><td>+0.056</td><td>+0.039</td><td>&minus;0.059</td></tr>
+<tr><td>&rho;</td><td>&minus;0.044</td><td>&minus;0.167</td><td>&minus;0.111</td></tr>
+<tr><td>&beta;<sub>f</sub></td><td>+0.023</td><td>+0.054</td><td><b>&minus;0.219</b></td></tr>
+<tr><td><i>a</i></td><td>+0.021</td><td>&minus;0.080</td><td>&minus;0.152</td></tr>
+<tr><td><i>r</i></td><td>&minus;0.007</td><td><b>+0.739</b></td><td>&minus;0.062</td></tr>
+<tr><td><i>c</i><sub>base</sub></td><td>+0.005</td><td>&minus;0.083</td><td>&minus;0.022</td></tr>
+<tr><td><i>c</i><sub>test</sub></td><td>+0.000</td><td>+0.045</td><td>&minus;0.135</td></tr>
 </table>
 
 <blockquote><p>To decide the stack-height composition, per-layer bonding yield <i>x</i> must be measured most accurately (+0.476); cost coefficients may be off by 50 % without changing the conclusion. To decide which equipment to add, the inspection-time ratio &theta; must be measured most accurately (+0.417)&mdash;more than twice as important as the capacity ratio &rho; itself.</p></blockquote>
 
-<p><i>Caution.</i> The +0.741 correlation of <i>r</i> with profit carries no information value: <i>r</i> is a revenue scale parameter, so proportionality is trivial, and its correlation with stack-height composition is &minus;0.073, effectively zero. Correlations that do not change a decision must be excluded from a value-of-information reading.</p>
+<p><i>Caution.</i> The +0.741 correlation of <i>r</i> with profit carries no information value: <i>r</i> is a revenue scale parameter, so proportionality is trivial, and its correlation with stack-height composition is &minus;0.073, effectively zero. Correlations that do not change a decision must be excluded from a sensitivity reading.</p>
 
 <p>The low correlation of &beta;<sub>f</sub> is likewise part of the conclusion. Combined with Section VII-D: <i>the existence of a final test is decisive, while the precision of its detection rate is not</i>. The evidence for the first clause is the inversion table, and for the second the Monte Carlo; the two sources must not be conflated.</p>
 
 <h3>F.&nbsp;&nbsp;The Bottleneck Inverts the Inspection Policy</h3>
 
-<p class="noindent">Activating one constraint at a time reverses the optimal inspection period: with only C1-a active the optimum is <i>k</i> = 1 (100 %), and with only C1-b active it is <i>k</i> = 4 (97 %).</p>
+<p class="noindent">Activating one constraint at a time reverses the optimal inspection period: with only C1-a active the optimum is <i>k</i> = 1 (100 %), and with only C1-b active it is <i>k</i> = 4 (100 %).</p>
 
 <blockquote><p>When the bonder is the bottleneck, inspect as often as possible; when the tester is the bottleneck, as rarely as possible.</p></blockquote>
 
@@ -404,11 +408,11 @@
 
 <h3>H.&nbsp;&nbsp;Height Diversity and Period Diversity Are Substitutes</h3>
 
-<p class="noindent">Releasing the single-period restriction of Assumption 3 so that a 12-high stack may carry both <i>k</i> = 2 and <i>k</i> = 4 makes the 16-high configuration disappear, replaced by 12-high with <i>k</i> = 4 (16-high 32 % &rarr; 0 %; 12-high <i>k</i>=4 0 % &rarr; 29 %).</p>
+<p class="noindent">Releasing the single-period restriction of Assumption 3 so that a 12-high stack may carry both <i>k</i> = 2 and <i>k</i> = 4 makes the 16-high configuration disappear, replaced by 12-high with <i>k</i> = 4 (observed only when C4 is slack; at the baseline the two cases coincide and the profit gap is +0.000 %).</p>
 
 <blockquote><p>Diversifying stack height and diversifying inspection period are substitutes for one another.</p></blockquote>
 
-<p>If a 12-high stack can carry two periods, the 16-high configuration is unnecessary; if it cannot, the 16-high configuration takes over that role. The observation is available only because height and inspection are decided jointly, and it does not appear in prior work. The opportunity cost of the restriction is +0.11 % of total profit with the quality constraint active and +1.43 % without&mdash;that is, reflecting line-operation reality costs less than 1.5 %.</p>
+<p>If a 12-high stack can carry two periods, the 16-high configuration is unnecessary; if it cannot, the 16-high configuration takes over that role. The observation is available only because height and inspection are decided jointly, and it does not appear in prior work. <b>At the corrected baseline the opportunity cost is 0.000 %</b>&mdash;the two settings give the identical solution. The earlier figures (+0.11 % / +1.43 %) were obtained at &phi;<sub>f</sub> = 0 and are withdrawn. Moreover only <i>periods</i>, not non-uniform <i>positions</i>, were tested; Appendix A shows the latter is the real direction of improvement.</p>
 
 <h3>I.&nbsp;&nbsp;Robustness of Revenue Linearity</h3>
 
@@ -464,7 +468,7 @@
 <li>for the final test, existence is decisive and detection precision is not.</li>
 </ul>
 
-<p>A value-of-information analysis further separated which parameters must be measured accurately from those for which estimates suffice. Converting the absence of data into the conclusion &ldquo;what must be measured&rdquo; is the methodological contribution.</p>
+<p>A global sensitivity analysis further separated which parameters must be measured accurately from those for which estimates suffice. Converting the absence of data into the conclusion &ldquo;what must be measured&rdquo; is the methodological contribution.</p>
 
 <p><i>Future work.</i> Allocating investment between in-line and final inspection&mdash;a two-dimensional optimization over &beta; and &beta;<sub>f</sub>&mdash;was not attempted, because with both parameters unknown it would amount to constructing an unfounded axis. Discrete-event simulation of line dynamics is likewise out of scope.</p>
 
