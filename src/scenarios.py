@@ -30,7 +30,9 @@ import random
 import sys
 
 from hbm_model import (Params, coefficients, L_SET, K_SET,
-                       DEMAND_SEG, DEMAND_WAFER_DIES)
+                       DEMAND_SEG, DEMAND_WAFER_DIES,
+                       H_BONDER, H_TESTER, RHO_BASE as RHO_SRC,
+                       DPPM_CAP as CAP_SRC)
 from milp import solve, BIG
 
 try:
@@ -41,15 +43,15 @@ except Exception:
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-SEC = 30 * 24 * 3600 * 0.85
-H_B = SEC * 20                       # 본더 20대 · 30일 · 가동률 85%
+# 인스턴스는 hbm_model 단일 출처를 쓴다 (2026.08.12).
+H_B = H_BONDER
 # 기준 DPPM 상한 (2026.08.12 S3 확정)
 #   200 ppm = C4 구속/비구속 **전환점 277 ppm 의 0.72배**
 #   절대값 자체는 여전히 미확보다. 그래서 전환점 대비 위치로 표기한다.
 #   300 ppm 이상이면 C4 가 비구속이 되어 기준선에서 아무 일도 하지 않는다.
 #   C2 가 이미 비구속인 상태라 C4 까지 죽으면 제약 5개 중 2개가 장식이 된다.
-DPPM_CAP = 200.0
-RHO_BASE = 0.9
+DPPM_CAP = CAP_SRC
+RHO_BASE = RHO_SRC
 
 
 # ======================================================================

@@ -1,0 +1,392 @@
+{
+  "_meta": {
+    "generated_by": "src/canonical.py",
+    "purpose": "원고의 모든 수치는 이 파일과 일치해야 한다. check_manuscript.py 가 대조한다.",
+    "note": "값은 로그 파싱이 아니라 모델 재실행으로 얻는다."
+  },
+  "parameters": {
+    "x": 0.965,
+    "beta": 0.95,
+    "beta_f": 0.95,
+    "phi_final": 1.0,
+    "a": 3.0,
+    "theta": 3.0,
+    "t_stack_s": 5.4,
+    "t_test_s": 16.2,
+    "t_final_s": 16.2,
+    "t_fix_a_s": 16.2,
+    "r": 5.0,
+    "c_base": 1.5,
+    "c_fix_b": 4.5,
+    "c_test": 0.012,
+    "gb_per_layer": 3.0,
+    "phi_final_dist": [
+      1.0,
+      3.0,
+      10.0
+    ],
+    "phi_final_baseline_rationale": "미확보. 분포 최소값을 기준으로 두어 M1 정정 효과를 하한으로 보고한다."
+  },
+  "instance": {
+    "H_bonder_s": {
+      "value": 44064000.0,
+      "mantissa": "4.406",
+      "exponent": 7,
+      "text": "4.406 e+7"
+    },
+    "H_tester_s": {
+      "value": 39657600.0,
+      "mantissa": "3.966",
+      "exponent": 7,
+      "text": "3.966 e+7"
+    },
+    "rho_baseline": 0.9,
+    "bonders": 20,
+    "days": 30,
+    "uptime": 0.85,
+    "wafer_dies": {
+      "value": 10540000.0,
+      "mantissa": "1.054",
+      "exponent": 7,
+      "text": "1.054 e+7"
+    },
+    "demand_seg_GB": {
+      "8": {
+        "value": 5666000.0,
+        "mantissa": "5.666",
+        "exponent": 6,
+        "text": "5.666 e+6"
+      },
+      "12": {
+        "value": 3966000.0,
+        "mantissa": "3.966",
+        "exponent": 6,
+        "text": "3.966 e+6"
+      }
+    },
+    "demand_seg_ratio": 0.7,
+    "dppm_cap": 200.0,
+    "J_definition": "J = (총이익) / (Σ τ_bond·q + Σ τ_test·q). 분모는 두 설비의 실사용 시간 합이며 가용 시간이 아니다."
+  },
+  "baseline": {
+    "status": "Optimal",
+    "mix_percent": {
+      "12L_k2": 97.32,
+      "16L_k4": 2.68
+    },
+    "total_profit": {
+      "value": 10595425.05415319,
+      "mantissa": "1.060",
+      "exponent": 7,
+      "text": "1.060 e+7"
+    },
+    "J": 0.15036,
+    "util_bonder_pct": 69.9,
+    "util_tester_pct": 100.0,
+    "bottleneck": "테스터",
+    "outgoing_dppm": 200.0,
+    "good_GB": {
+      "value": 10167608.03500852,
+      "mantissa": "1.017",
+      "exponent": 7,
+      "text": "1.017 e+7"
+    },
+    "dies_used": {
+      "value": 4842740.723077556,
+      "mantissa": "4.843",
+      "exponent": 6,
+      "text": "4.843 e+6"
+    },
+    "duals": {
+      "C1a_bonder": 0.0,
+      "C1b_tester": 0.267173,
+      "C2_seg0": 0.0,
+      "C2_seg1": 0.0,
+      "C3_wafer": 0.0,
+      "C4_dppm": 96820.177
+    },
+    "binding": [
+      "C1b_tester",
+      "C4_dppm"
+    ]
+  },
+  "check8": {
+    "best_L": 12,
+    "interior_optimum": true,
+    "unimodal": true,
+    "single_pool_dual": 0.19096,
+    "direct_ratio": 0.19096,
+    "ratio_per_L": {
+      "8": 0.1779,
+      "12": 0.19096,
+      "16": 0.18689
+    }
+  },
+  "dppm_floor": {
+    "closed_form": "Q = (1-beta_f)(1-x^k) * sum_{s=1..floor(L/k)} rr^s, rr = (1-beta)/x^k ;  DPPM = 1e6 * Q/(1+Q)",
+    "values": {
+      "no_final_test": {
+        "k1": {
+          "8": 1908.9,
+          "12": 1908.9,
+          "16": 1908.9
+        },
+        "k2": {
+          "8": 3887.0,
+          "12": 3887.1,
+          "16": 3887.1
+        },
+        "k4": {
+          "8": 8034.6,
+          "12": 8059.7,
+          "16": 8061.1
+        }
+      },
+      "beta_f_0.95": {
+        "k1": {
+          "8": 95.6,
+          "12": 95.6,
+          "16": 95.6
+        },
+        "k2": {
+          "8": 195.1,
+          "12": 195.1,
+          "16": 195.1
+        },
+        "k4": {
+          "8": 404.8,
+          "12": 406.1,
+          "16": 406.2
+        }
+      }
+    },
+    "L_independent": true,
+    "top_block_share_pct": 94.82
+  },
+  "c4_blending": {
+    "floor_per_config_ppm": {
+      "12L_k2": 195.1,
+      "16L_k4": 406.2
+    },
+    "cap_ppm": 200.0,
+    "predicted_16L_share_pct": 2.32,
+    "note": "C4 는 합산 제약이므로 두 구성의 하한을 cap 으로 블렌딩하면 16단 비중이 예측된다. baseline mix 와 대조하라."
+  },
+  "block_y": {
+    "8L_k1": {
+      "e_layer": 7.0972,
+      "e_test": 7.0972,
+      "p_good": 0.752001,
+      "dppm": 95.6
+    },
+    "8L_k2": {
+      "e_layer": 7.2318,
+      "e_test": 3.6159,
+      "p_good": 0.752001,
+      "dppm": 195.1
+    },
+    "8L_k4": {
+      "e_layer": 7.4953,
+      "e_test": 1.8738,
+      "p_good": 0.752001,
+      "dppm": 404.8
+    },
+    "12L_k1": {
+      "e_layer": 9.9564,
+      "e_test": 9.9564,
+      "p_good": 0.65212,
+      "dppm": 95.6
+    },
+    "12L_k2": {
+      "e_layer": 10.1477,
+      "e_test": 5.0739,
+      "p_good": 0.65212,
+      "dppm": 195.1
+    },
+    "12L_k4": {
+      "e_layer": 10.5277,
+      "e_test": 2.6319,
+      "p_good": 0.65212,
+      "dppm": 406.1
+    },
+    "16L_k1": {
+      "e_layer": 12.4359,
+      "e_test": 12.4359,
+      "p_good": 0.565506,
+      "dppm": 95.6
+    },
+    "16L_k2": {
+      "e_layer": 12.6763,
+      "e_test": 6.3382,
+      "p_good": 0.565506,
+      "dppm": 195.1
+    },
+    "16L_k4": {
+      "e_layer": 13.1573,
+      "e_test": 3.2893,
+      "p_good": 0.565506,
+      "dppm": 406.2
+    }
+  },
+  "_external": {
+    "note": "아래는 별도 스크립트의 산출물이다. 해당 로그가 갱신되면 이 절도 갱신해야 한다. check_manuscript 는 이 값들도 대조한다.",
+    "sources": {
+      "transition_curve": "data/fig1_transition_curve.csv",
+      "monte_carlo": "data/phase3_log.txt",
+      "nonuniform": "data/nonuniform_schedule.csv",
+      "evppi": "data/robustness_evppi_log.txt",
+      "phi_final_sweep": "data/final_test_sweep_log.txt"
+    }
+  },
+  "transition": {
+    "by_cap": {
+      "200": 1.2872,
+      "250": 1.1101,
+      "300": 0.8995,
+      "350": 0.8344,
+      "400": 0.7389,
+      "425": 0.7284,
+      "450": 0.7284,
+      "475": 0.7284,
+      "500": 0.7284,
+      "600": 0.7284,
+      "1000": 0.7284,
+      "5000": 0.7284
+    },
+    "plateau": 0.7284,
+    "knee_ppm": 425.0,
+    "at_cap_200": 1.2872
+  },
+  "monte_carlo": {
+    "draws": 2000,
+    "feasible": 566,
+    "feasible_pct": 28.3,
+    "share_8": {
+      "median": 0.0,
+      "ci90": [
+        0.0,
+        45.3
+      ]
+    },
+    "share_12": {
+      "median": 12.5,
+      "ci90": [
+        0.0,
+        89.9
+      ]
+    },
+    "share_16": {
+      "median": 70.4,
+      "ci90": [
+        4.1,
+        100.0
+      ]
+    },
+    "J": {
+      "median": 0.144,
+      "ci90": [
+        0.0708,
+        0.261
+      ]
+    },
+    "p_bottleneck_tester_pct": 86.9,
+    "correlation": {
+      "x": {
+        "share_16": 0.415,
+        "profit_per_s": 0.314,
+        "tester_bottleneck": -0.016
+      },
+      "theta": {
+        "share_16": 0.24,
+        "profit_per_s": -0.319,
+        "tester_bottleneck": 0.311
+      },
+      "phi_final": {
+        "share_16": 0.197,
+        "profit_per_s": -0.035,
+        "tester_bottleneck": 0.16
+      },
+      "beta": {
+        "share_16": 0.154,
+        "profit_per_s": -0.037,
+        "tester_bottleneck": -0.088
+      },
+      "c_fix_b": {
+        "share_16": 0.056,
+        "profit_per_s": 0.039,
+        "tester_bottleneck": -0.059
+      },
+      "rho": {
+        "share_16": -0.044,
+        "profit_per_s": -0.167,
+        "tester_bottleneck": -0.111
+      },
+      "beta_f": {
+        "share_16": 0.023,
+        "profit_per_s": 0.054,
+        "tester_bottleneck": -0.219
+      },
+      "a": {
+        "share_16": 0.021,
+        "profit_per_s": -0.08,
+        "tester_bottleneck": -0.152
+      },
+      "r": {
+        "share_16": -0.007,
+        "profit_per_s": 0.739,
+        "tester_bottleneck": -0.062
+      },
+      "c_base": {
+        "share_16": 0.005,
+        "profit_per_s": -0.083,
+        "tester_bottleneck": -0.022
+      },
+      "c_test": {
+        "share_16": 0.0,
+        "profit_per_s": 0.045,
+        "tester_bottleneck": -0.135
+      }
+    }
+  },
+  "nonuniform_schedule": {
+    "8": {
+      "uniform_k1_tests": 8,
+      "floor_ppm": 1908.9,
+      "min_tests": 4,
+      "positions": "5,6,7,8",
+      "tester_time_saving_pct": 50.0
+    },
+    "12": {
+      "uniform_k1_tests": 12,
+      "floor_ppm": 1908.9,
+      "min_tests": 5,
+      "positions": "8,9,10,11,12",
+      "tester_time_saving_pct": 58.3
+    },
+    "16": {
+      "uniform_k1_tests": 16,
+      "floor_ppm": 1908.9,
+      "min_tests": 5,
+      "positions": "12,13,14,15,16",
+      "tester_time_saving_pct": 68.8
+    },
+    "max_dppm_gain_pct": 76.27,
+    "max_gain_case": "L=16 m=4"
+  },
+  "evppi": {
+    "values": {
+      "r": 0.001709,
+      "phi_final": 0.000855,
+      "theta": 0.000452,
+      "beta_f": 2e-06,
+      "c_test": -1e-06,
+      "beta": -7e-06,
+      "c_base": -3.6e-05,
+      "c_fix_b": -0.00018,
+      "a": -0.00047,
+      "x": -0.000648
+    },
+    "noise_floor": 0.000648
+  },
+  "phi_final_threshold": 2.0285
+}

@@ -56,6 +56,10 @@ STEPS = [
      "data/nonuniform_schedule_log.txt, nonuniform_schedule.csv"),
     ("robustness_evppi.py", "층별 수율 저하 시나리오 + EVPPI (CRN)",
      "data/robustness_evppi_log.txt"),
+    ("canonical.py", "정본 수치 확정 — 원고 대조의 기준",
+     "data/canonical_results.json"),
+    ("check_manuscript.py", "원고 대조 검사 — 스테일 수치·미실체 주장·언어 오염",
+     "(콘솔. 불일치 시 파이프라인 중단)"),
 ]
 
 # 검증용 일회성 스크립트 — 파이프라인에는 포함하지 않는다
