@@ -39,7 +39,7 @@ HBM(고대역폭 메모리)은 DRAM 칩을 여러 장 쌓아 만든다. 높이 �
 **⑤ 무엇을 정확히 측정해야 하는지가 갈린다.**
 파라미터 9개를 삼각분포로 동시에 흔든 몬테카를로 2,000회 결과, 층수 구성은 **층당 접합 수율 x**(상관 +0.476)가, 병목 위치는 **검사시간 배수 θ = t_test/t_stack**(+0.417)이 지배한다. 반면 원가 항목은 상관 0.06 미만으로, 50% 틀려도 결론이 바뀌지 않는다.
 
-전체 논의는 **[최종 리포트 — `docs/11_Report.md`](docs/11_Report.md)**에 있고, IEEE 2단으로 조판한 논문판이 **[한국어](paper/HBM_Stack_Mix_Optimization_KO.pdf)** · **[English](paper/HBM_Stack_Mix_Optimization_EN.pdf)** 두 판으로 있다. 수치의 정본은 [`docs/07_Results.md`](docs/07_Results.md)다.
+전체 서술은 IEEE 2단으로 조판한 논문판에 있다 — **[한국어 PDF](paper/HBM_Stack_Mix_Optimization_KO.pdf)** · **[English PDF](paper/HBM_Stack_Mix_Optimization_EN.pdf)**. 짧게 보려면 [`docs/11_Report.md`](docs/11_Report.md)(요약), 수치의 정본은 [`docs/07_Results.md`](docs/07_Results.md)다.
 
 ---
 
@@ -160,7 +160,7 @@ docs/       학술 문서
   06_Parameters.md    파라미터 표 · 등급 · 출처 · 출처 충돌
   07_Results.md       ★ 결과 정본
   09_Roadmap.md       실행 계획
-  11_Report.md        ★ 최종 리포트 — 초록·선행연구·모델·검증·결과·한계
+  11_Report.md        최종 리포트 요약 — 상세는 paper/ PDF, 수치는 07_Results
 
 notes/      작업 기록
   08_Handoff.md          세션 인계 메모
