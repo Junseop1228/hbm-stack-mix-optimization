@@ -46,6 +46,12 @@ STEPS = [
      "paper/fig/fig1~3.png"),
     ("fig_audit.py", "그림 자동 검수 — 축 이탈·텍스트 겹침·곡선 관통",
      "(콘솔)"),
+    ("check_block_y_mc.py", "Block Y 일반식 독립 검증 — 이벤트 몬테카를로 108항목",
+     "data/block_y_mc_verify_log.txt"),
+    ("dppm_floor.py", "DPPM 하한 일반 닫힌형 · 층수 무의존성 · 층별 분해",
+     "data/dppm_floor_log.txt"),
+    ("final_test_sweep.py", "최종 검사 시간비 φ_f · θ 곡면, 임계 φ_f",
+     "data/final_test_sweep_log.txt, final_test_sweep.csv"),
 ]
 
 # 검증용 일회성 스크립트 — 파이프라인에는 포함하지 않는다
