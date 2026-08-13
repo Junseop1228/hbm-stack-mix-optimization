@@ -52,6 +52,10 @@ STEPS = [
      "data/dppm_floor_log.txt"),
     ("final_test_sweep.py", "최종 검사 시간비 φ_f · θ 곡면, 임계 φ_f",
      "data/final_test_sweep_log.txt, final_test_sweep.csv"),
+    ("nonuniform_schedule.py", "비균일 검사 위치 전수 열거 — 최소 검사 예산",
+     "data/nonuniform_schedule_log.txt, nonuniform_schedule.csv"),
+    ("robustness_evppi.py", "층별 수율 저하 시나리오 + EVPPI (CRN)",
+     "data/robustness_evppi_log.txt"),
 ]
 
 # 검증용 일회성 스크립트 — 파이프라인에는 포함하지 않는다
