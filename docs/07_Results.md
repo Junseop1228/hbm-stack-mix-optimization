@@ -3,6 +3,7 @@
 **HBM Stack Mix Optimization** | v1.0 | 2026.08.12
 
 > **이 문서가 수치의 유일한 기준이다.** 다른 문서의 숫자가 여기와 다르면 그쪽이 낡은 것이다.
+> 서술을 포함한 전체 논의는 `11_Report.md`(최종 리포트)에 있다.
 > 실행 계획과 단계 구성은 `09_Roadmap.md`, 모델 정의는 `01_Spec.md`, 파라미터 근거는 `06_Parameters.md`.
 
 **재현**: `python src/run_all.py` (약 3분). 모든 수치는 `data/` 의 로그·CSV 로 대조할 수 있다.
