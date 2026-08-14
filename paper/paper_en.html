@@ -21,7 +21,7 @@
 <p class="noindent" style="border:0.8pt solid #000;padding:5pt;margin:0 0 9pt 0;font-size:8.5pt;line-height:10.5pt;text-indent:0">
 <b>Revision notice (v2, Aug 2026).</b> Following external review, the <b>tester time of the final test is now included in &tau;<sub>test</sub></b>. The number of stacks reaching final test is p<sub>ship</sub>(L,k), so it is not an (L,k)-independent constant. This correction changed the baseline mix, the bottleneck transition ratio and the Monte Carlo distribution, and <b>8-high stacks disappeared from the optimal mix</b> &mdash; their previously unexplained appearance was an artifact of the omitted final-test time. The new parameter &phi;<sub>f</sub> = t<sub>final</sub>/t<sub>test</sub> is unknown, so its baseline is set to the minimum of its distribution (1.0) and the reported effect is treated as a lower bound. In addition, a general closed form for the outgoing DPPM floor and its <b>independence of stack height</b> are derived (Appendix A), and the general expressions are independently verified by event-level Monte Carlo (108 items). Canonical figures: <code>docs/07_Results.md</code> v2.0; review verdicts: <code>notes/12_Review_Response.md</code>.
 </p>
-<p class="abstract"><span class="lead">Abstract—</span>High Bandwidth Memory (HBM) is manufactured by vertically stacking DRAM dies. Capacity grows linearly with the number of layers, but compound yield decays exponentially. Periodic inspection during stacking discards defective stacks early and thereby saves downstream equipment time, yet inspection itself consumes tester time. The established cost-modeling literature for 3D-stacked ICs optimizes cost alone, does not model equipment throughput, treats the number of layers as a given parameter, and is limited to at most five dies because the search space grows as O(N<sup>l<sup>2</sup></sup>). This report constrains the search structure to layer-wise periodic patterns, which makes 12- to 16-high stacks tractable, and adds bonder and tester throughput constraints together with a stack-height product mix as decision variables in a mixed-integer linear program. Because the absolute values of the equipment and cost coefficients are not public, the input is treated as a parameter space rather than a data set, and conclusions are reported probabilistically through triangular-distribution Monte Carlo sampling. Five results follow. First, the priority for equipment expansion is a function of the outgoing quality target: <b>above</b> a 425 ppm limit the bottleneck transition ratio is pinned at 0.728 and is insensitive to quality, whereas at 200 ppm it rises to 1.287, meaning tester capacity must exceed bonder capacity. Second, 16-high stacks appear for two opposite reasons&mdash;customer capacity demand forces them at low yield, while equipment economics selects them at high yield. Third, without a final test no inspection frequency reaches 1,000 ppm; the floor is 1,908.9 ppm. Fourth, when the bonder is the bottleneck the optimal policy is to inspect as often as possible, and the reverse holds when the tester is the bottleneck. Fifth, a global sensitivity analysis (Pearson correlation) shows that stack-height composition is governed by per-layer bonding yield (correlation +0.476) and bottleneck location by the inspection-time ratio (+0.417), while cost coefficients are immaterial (below 0.06).</p>
+<p class="abstract"><span class="lead">Abstract—</span>High Bandwidth Memory (HBM) is manufactured by vertically stacking DRAM dies. Capacity grows linearly with the number of layers, but compound yield decays exponentially. Periodic inspection during stacking discards defective stacks early and thereby saves downstream equipment time, yet inspection itself consumes tester time. The established cost-modeling literature for 3D-stacked ICs optimizes cost alone, does not model equipment throughput, treats the number of layers as a given parameter, and is limited to at most five dies because the search space grows as O(N<sup>l<sup>2</sup></sup>). This report constrains the search structure to layer-wise periodic patterns, which makes 12- to 16-high stacks tractable, and adds bonder and tester throughput constraints together with a stack-height product mix as decision variables in a mixed-integer linear program. Because the absolute values of the equipment and cost coefficients are not public, the input is treated as a parameter space rather than a data set, and conclusions are reported probabilistically through triangular-distribution Monte Carlo sampling. Five results follow. First, the priority for equipment expansion is a function of the outgoing quality target: <b>above</b> a 425 ppm limit the bottleneck transition ratio is pinned at 0.728 and is insensitive to quality, whereas at 200 ppm it rises to 1.287, meaning tester capacity must exceed bonder capacity. Second, 16-high stacks appear for two opposite reasons&mdash;customer capacity demand forces them at low yield, while equipment economics selects them at high yield. Third, without a final test no inspection frequency reaches 1,000 ppm; the floor is 1,908.9 ppm. Fourth, when the bonder is the bottleneck the optimal policy is to inspect as often as possible, and the reverse holds when the tester is the bottleneck. Fifth, a global sensitivity analysis (Pearson correlation) shows that stack-height composition is governed by per-layer bonding yield (correlation +0.415) and bottleneck location by the inspection-time ratio (+0.311), while cost coefficients are immaterial (below 0.06).</p>
 
 <p class="keywords"><span class="lead">Index Terms—</span>HBM, 3D stacking, production allocation, mixed-integer linear programming, capacity constraint, inspection period, bottleneck analysis, Monte Carlo, global sensitivity analysis.</p>
 
@@ -118,9 +118,11 @@
 <tr><td><i>c</i><sub>fix,b</sub></td><td>post-stack fixed cost (reflow, molding)</td><td>4.5</td><td>unknown</td></tr>
 <tr><td><i>c</i><sub>test</sub></td><td>cost per inspection</td><td>0.012</td><td>B</td></tr>
 <tr><td><i>c</i></td><td>capacity per layer</td><td>3 GB</td><td>A</td></tr>
-<tr><td><i>H<sub>b</sub></i>, <i>H<sub>t</sub></i></td><td>bonder / tester available time</td><td>ratio &rho;</td><td>unknown</td></tr>
+<tr><td><i>H<sub>b</sub></i></td><td>bonder available time (20 tools &times; 30 d &times; 0.85)</td><td>4.406 &times; 10<sup>7</sup> s</td><td>unknown (scale)</td></tr>
+<tr><td>&rho;</td><td><i>H<sub>t</sub></i> / <i>H<sub>b</sub></i></td><td>0.90</td><td>unknown</td></tr>
+<tr><td><i>H<sub>t</sub></i></td><td>tester available time = &rho; <i>H<sub>b</sub></i></td><td>3.966 &times; 10<sup>7</sup> s</td><td>derived</td></tr>
 <tr><td><i>D<sub>s</sub></i></td><td>minimum good capacity of segment <i>s</i></td><td>&ge;12-high share 0.70</td><td>B</td></tr>
-<tr><td><i>W</i></td><td>wafer die supply</td><td>&mdash;</td><td>unknown</td></tr>
+<tr><td><i>W</i></td><td>wafer die supply</td><td>1.054 &times; 10<sup>7</sup> dies</td><td>unknown (scale)</td></tr>
 <tr><td><i>Q</i></td><td>outgoing DPPM limit</td><td>200 ppm</td><td>unknown</td></tr>
 </table>
 
@@ -198,6 +200,12 @@
 <span class="eq">max &nbsp; &Sigma;<sub>(L,k)</sub> [ <i>R</i>(<i>L</i>) &minus; E[<i>C</i>](<i>L</i>,<i>k</i>) ] &middot; <i>q</i>(<i>L</i>,<i>k</i>)</span>
 
 <p class="noindent">Total profit is maximized, with Assumption 6 as the premise.</p>
+
+<p><i>Reported ratio.</i> The per-unit indicator <i>J</i> quoted throughout the results is a <b>derived</b> quantity, not the objective. Its denominator is the <b>time actually consumed</b> on the two constrained resources, not the time available:</p>
+
+<span class="eq"><i>J</i> = &Sigma;<sub>(L,k)</sub> [ <i>R</i>(<i>L</i>) &minus; E[<i>C</i>] ] <i>q</i> &nbsp;&divide;&nbsp; ( &Sigma; &tau;<sub>bond</sub> <i>q</i> + &Sigma; &tau;<sub>test</sub> <i>q</i> )</span>
+
+<p class="noindent">Summing two non-substitutable resources in the denominator is a deliberate simplification: <i>J</i> is reported only as a scale-free summary for comparing scenarios, while the economically meaningful per-second quantity is the <b>dual of the binding capacity constraint</b> (Section IV-B). At the baseline, bonder utilization is 69.9 % and tester utilization is 100.0 %, so <i>J</i> and the tester dual 0.267173 are not interchangeable. Absolute profit is in normalized units (core die cost = 1.0) and scales linearly with <i>H<sub>b</sub></i>; only ratios are conclusions.</p>
 
 <h3>B.&nbsp;&nbsp;Why the Fractional Objective Was Rejected</h3>
 
@@ -293,9 +301,9 @@
 <table>
 <tr><th>Quantity</th><th>Value</th></tr>
 <tr><td>production mix</td><td>12-high <i>k</i>=2 (97.3 %), 16-high <i>k</i>=4 (2.7 %) &mdash; <b>no 8-high</b></td></tr>
-<tr><td>total profit</td><td>9.4182 &times; 10<sup>7</sup></td></tr>
-<tr><td>profit per equipment-second</td><td>0.15036</td></tr>
-<tr><td>bonder / tester utilization</td><td>62.1 % / <b>100.0 %</b></td></tr>
+<tr><td>total profit (normalized units)</td><td>1.060 &times; 10<sup>7</sup></td></tr>
+<tr><td>profit per equipment-second, <i>J</i></td><td>0.15036</td></tr>
+<tr><td>bonder / tester utilization</td><td>69.9 % / <b>100.0 %</b></td></tr>
 <tr><td>bottleneck</td><td><b>tester</b> (dual 0.267173 vs. 0.00000)</td></tr>
 <tr><td>outgoing DPPM</td><td>200 ppm (binding)</td></tr>
 </table>
@@ -357,10 +365,10 @@
 <tr><td>12-high share</td><td>12.5 %</td><td>0&ndash;89.9 %</td></tr>
 <tr><td>16-high share</td><td><b>70.4 %</b></td><td>4.1&ndash;100 %</td></tr>
 <tr><td>profit per equipment-second</td><td>0.1440</td><td>0.0708&ndash;0.2610</td></tr>
-<tr><td><b>P(bottleneck = tester)</b></td><td colspan="2"><b>약 87 %</b></td></tr>
+<tr><td><b>P(bottleneck = tester)</b></td><td colspan="2"><b>≈ 87 %</b></td></tr>
 </table>
 
-<p>The confidence interval on stack-height share spans zero to one hundred percent, so the statement &ldquo;the optimum is 12-high&rdquo; cannot be asserted. The bottleneck, by contrast, is the tester with roughly 72 % probability. The asymmetry itself is a result.</p>
+<p>The confidence interval on stack-height share spans zero to one hundred percent, so the statement &ldquo;the optimum is 12-high&rdquo; cannot be asserted. The bottleneck, by contrast, is the tester with probability &asymp; 87 % (90 % CI 85&ndash;89, conditional on the assumed &rho; and &phi;<sub>f</sub> ranges). The asymmetry itself is a result.</p>
 
 <div class="tcap">Table XII<br>Correlation of parameters with outcomes</div>
 <table>
@@ -378,11 +386,13 @@
 <tr><td><i>c</i><sub>test</sub></td><td>+0.000</td><td>+0.045</td><td>&minus;0.135</td></tr>
 </table>
 
-<blockquote><p>To decide the stack-height composition, per-layer bonding yield <i>x</i> must be measured most accurately (+0.476); cost coefficients may be off by 50 % without changing the conclusion. To decide which equipment to add, the inspection-time ratio &theta; must be measured most accurately (+0.417)&mdash;more than twice as important as the capacity ratio &rho; itself.</p></blockquote>
+<blockquote><p>To decide the stack-height composition, per-layer bonding yield <i>x</i> has the largest linear association (+0.415). To decide which equipment to add, three unknown parameters dominate: &theta; (+0.311), &beta;<sub>f</sub> (&minus;0.219) and &phi;<sub>f</sub> (+0.160), all larger in magnitude than the capacity ratio &rho; itself (&minus;0.111). <b>The claim that cost coefficients are immaterial holds for the 16-high column only</b>: <i>c</i><sub>test</sub> reaches &minus;0.135 and <i>c</i><sub>base</sub> &minus;0.083 in the other columns.</p></blockquote>
 
-<p><i>Caution.</i> The +0.741 correlation of <i>r</i> with profit carries no information value: <i>r</i> is a revenue scale parameter, so proportionality is trivial, and its correlation with stack-height composition is &minus;0.073, effectively zero. Correlations that do not change a decision must be excluded from a sensitivity reading.</p>
+<p><i>Caution.</i> The +0.739 correlation of <i>r</i> with profit carries no information value: <i>r</i> is a revenue scale parameter, so proportionality is trivial, and its correlation with stack-height composition is &minus;0.007, effectively zero. Correlations that do not change a decision must be excluded from a sensitivity reading.</p>
 
 <p>The low correlation of &beta;<sub>f</sub> is likewise part of the conclusion. Combined with Section VII-D: <i>the existence of a final test is decisive, while the precision of its detection rate is not</i>. The evidence for the first clause is the inversion table, and for the second the Monte Carlo; the two sources must not be conflated.</p>
+
+<h4>Sign reversals introduced by the final-test correction.</h4> <p class="noindent">Two associations reversed sign relative to the pre-correction model and this is a new result rather than noise. &theta; &rarr; 16-high share moved from &minus;0.124 to <b>+0.240</b>, and &beta; &rarr; 16-high share from &minus;0.106 to <b>+0.154</b>. The mechanism is direct: the longer an inspection takes, the larger the height-independent tester load that must be amortized, so taller stacks gain. The same correction is what removed 8-high stacks from the mix (Section VIII-A).</p>
 
 <h3>F.&nbsp;&nbsp;The Bottleneck Inverts the Inspection Policy</h3>
 
