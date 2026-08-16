@@ -42,7 +42,8 @@ import sys
 import pulp
 
 from hbm_model import (Params, coefficients, best_by_ratio, L_SET, K_SET,
-                       DEMAND_SEG, DEMAND_WAFER_DIES)
+                       DEMAND_SEG, DEMAND_WAFER_DIES,
+                       H_BONDER, H_TESTER, RHO_BASE)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")

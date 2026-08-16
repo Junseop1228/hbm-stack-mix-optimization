@@ -113,6 +113,7 @@
 <tr><td><i>t</i><sub>stack</sub></td><td>time to stack one layer</td><td>5.4 s</td><td>B</td></tr>
 <tr><td><i>a</i></td><td>pre-stack fixed-time ratio, <i>t</i><sub>fix,a</sub>/<i>t</i><sub>stack</sub></td><td>3.0</td><td>unknown</td></tr>
 <tr><td>&theta;</td><td>inspection-time ratio, <i>t</i><sub>test</sub>/<i>t</i><sub>stack</sub></td><td>3.0</td><td>unknown</td></tr>
+<tr><td><b>&phi;<sub>f</sub></b></td><td><b>final-test time ratio, <i>t</i><sub>final</sub>/<i>t</i><sub>test</sub></b></td><td><b>1.0</b><br>Tri(1, 3, 10)</td><td><b>unknown</b></td></tr>
 <tr><td><i>r</i></td><td>revenue per layer (core die cost = 1.0)</td><td>5.0</td><td>unknown</td></tr>
 <tr><td><i>c</i><sub>base</sub></td><td>base die cost ratio</td><td>1.5</td><td>unknown</td></tr>
 <tr><td><i>c</i><sub>fix,b</sub></td><td>post-stack fixed cost (reflow, molding)</td><td>4.5</td><td>unknown</td></tr>
@@ -183,7 +184,9 @@
 <h3>D.&nbsp;&nbsp;Block T &mdash; Equipment and Cost</h3>
 
 <span class="eq">&tau;<sub>bond</sub> = <i>t</i><sub>fix,a</sub> + <i>t</i><sub>stack</sub> &middot; E[layer]</span>
-<span class="eq">&tau;<sub>test</sub> = <i>t</i><sub>test</sub> &middot; E[test]</span>
+<span class="eq">&tau;<sub>test</sub> = <i>t</i><sub>test</sub> &middot; E[test] + <i>t</i><sub>final</sub> &middot; <i>p</i><sub>reach</sub>(<i>L</i>,<i>k</i>) ,&nbsp;&nbsp; <i>t</i><sub>final</sub> = &phi;<sub>f</sub> <i>t</i><sub>test</sub></span>
+
+<p class="noindent"><b>The second term is the correction introduced in this revision.</b> The final test of Assumption 4 is applied to every stack that completes <i>L</i> layers, and that count is <i>p</i><sub>reach</sub>(<i>L</i>,<i>k</i>) &mdash; not a constant. Early discard removes stacks before they reach the final test, so the term depends on <i>k</i> and on <i>L</i>. Treating it as an (<i>L</i>,<i>k</i>)-independent constant, as the first version did, is inconsistent with the cost expression below, which already charges <i>c</i><sub>fix,b</sub> against <i>p</i><sub>ship</sub>. The final-test <i>cost</i> is absorbed into <i>c</i><sub>fix,b</sub> so that no additional unknown is introduced.</p>
 <span class="eq">E[<i>C</i>] = <i>c</i><sub>base</sub> + <i>c</i><sub>die</sub> E[layer] + <i>c</i><sub>test</sub> E[test] + <i>p</i><sub>ship</sub> <i>c</i><sub>fix,b</sub></span>
 <span class="eq"><i>R</i>(<i>L</i>) = <i>r</i> &middot; <i>L</i> &middot; <i>p</i><sub>good</sub></span>
 
@@ -261,7 +264,11 @@
 
 <p class="noindent">Absolute values of the equipment and cost coefficients are confidential without exception. The input of this study is therefore a parameter space rather than a data set: ranges obtainable from public literature are represented as triangular distributions and 2,000 Monte Carlo draws produce the distribution of conclusions.</p>
 
-<p>The Monte Carlo here concerns <i>parameter</i> uncertainty. Monte Carlo over defect events is not performed, because early discard admits a closed form and simulating it would duplicate the calculation.</p>
+<p>The Monte Carlo of this section concerns <i>parameter</i> uncertainty.</p>
+
+<h3>E.&nbsp;&nbsp;Event-Level Monte Carlo as an Independent Check</h3>
+
+<p class="noindent">A separate, event-level Monte Carlo <i>is</i> performed, for a different purpose. The first version argued that simulating defect events was redundant because early discard admits a closed form. That conflated <b>redundancy for estimation</b> with <b>independence for verification</b>. For estimation the simulation is indeed redundant; for verification it is the only route that does not reuse the analytic derivation, and the general (<i>L</i>, <i>k</i>, &beta;, &beta;<sub>f</sub>) expressions had never been checked against anything else. The layer-by-layer simulation is described in Section VI-D.</p>
 
 <h2>VI.&nbsp;&nbsp;Validation</h2>
 
@@ -325,12 +332,31 @@
 <tr><td>&ge; 425 ppm</td><td><b>0.7284 (flat)</b></td></tr>
 </table>
 
-<p>The curve breaks at 425 ppm into two regimes. If the quality target is looser than 425 ppm, the expansion priority is independent of quality; if tighter, quality determines it, and at 200 ppm <i>tester capacity must exceed bonder capacity</i>. Tightening quality raises inspection load, so the tester saturates first. This statement cannot be derived unless capacity and quality constraints coexist in one model: the prior cost lineage has no capacity, and the capacity literature has no quality.</p>
+<p>The curve breaks at 425 ppm into two regimes. If the quality target is looser than 425 ppm, the expansion priority is independent of quality; if tighter, quality determines it, and at 200 ppm <i>tester capacity must exceed bonder capacity</i>. Tightening quality raises inspection load, so the tester saturates first.</p>
+
+<p><b>Positioning of this statement against two literatures.</b> The 3D-IC cost lineage surveyed in Section II-A has no notion of equipment time, so the statement cannot arise there. The semiconductor production- and capacity-planning lineage does model limited tester capacity together with product mix and yield&mdash;Uzsoy <i>et al.</i> [C1]&ndash;[C3], the survey of M&ouml;nch <i>et al.</i> [C5], Missbauer and Uzsoy [C6], and a recent treatment of joint demand and yield uncertainty [C9]&mdash;but it treats test as a <i>given</i> process step to be sequenced, not as a frequency to be chosen, and its objectives are lateness and tardiness rather than an outgoing-quality cap. <b>The gap addressed here is therefore an intersection rather than any single missing item:</b> inspection frequency as a decision variable, under equipment throughput constraints, with stack height also decided. A claim in the first version that &ldquo;the capacity literature has no quality&rdquo; was made without surveying that literature and is withdrawn.</p>
 
 <figure class="span">
   <img src="fig/fig2_mix_vs_yield.png" alt="16-high share versus per-layer yield">
   <figcaption>Fig. 2.&nbsp;&nbsp;Share of 16-high stacks in the optimal mix versus per-layer bonding yield. Filled markers indicate that the customer capacity constraint is binding. The two ends of the curve arise from opposite causes.</figcaption>
 </figure>
+
+<h4>Dependence on the two unknown time ratios.</h4> <p class="noindent">Both the transition ratio and the mix depend strongly on &theta; and on &phi;<sub>f</sub>, and both are unknown. Reporting a single number would misstate the evidence.</p>
+
+<div class="tcap">Table XVI<br>Transition ratio and knee over the final-test time ratio</div>
+<table>
+<tr><th>&phi;<sub>f</sub></th><th>transition <i>H<sub>t</sub></i>/<i>H<sub>b</sub></i></th><th>knee (ppm)</th><th>plateau</th><th>mix 8/12/16 (%)</th></tr>
+<tr><td>1.0 (baseline)</td><td>1.2872</td><td>425</td><td>0.7284</td><td>0 / 97 / 3</td></tr>
+<tr><td>3.0</td><td>1.5820</td><td>425</td><td>0.9259</td><td>0 / 2 / 98</td></tr>
+<tr><td>8.0</td><td>2.0730</td><td>425</td><td>1.4511</td><td>0 / 2 / 98</td></tr>
+<tr><td>20.0</td><td>3.3778</td><td>425</td><td>2.7116</td><td>infeasible</td></tr>
+</table>
+
+<p class="noindent"><b>The knee is invariant at 425 ppm across the whole range, while the plateau moves by a factor of 3.7.</b> The location at which quality starts to matter is therefore a more robust result than the level of the transition ratio. Since &phi;<sub>f</sub> = 1.0 is the minimum of its distribution, every transition ratio reported in this section is a <b>lower bound</b>; a review judgement that &phi;<sub>f</sub> = 5&ndash;20 is physically realistic would place the baseline in the range where the mix is 16-high dominant or infeasible.</p>
+
+<p><b>Threshold for the interior optimum.</b> Bisection gives <b>&phi;<sub>f</sub> = 2.0285</b> as the point at which the layer-count interior optimum disappears and the solution moves to the boundary of the candidate set. Below it the prior-work conclusion is reproduced (Check 8); above it the model answers &ldquo;stack as tall as the candidate set allows&rdquo;, which means the true optimum may lie outside {8, 12, 16}. This is a limitation, stated in Section VIII-A.</p>
+
+<p><b>The inversion of Section VII-F survives the whole range.</b> With only the bonder constrained the optimum is <i>k</i> = 1 at 100 % for every &phi;<sub>f</sub> in [1, 20]; with only the tester constrained it is <i>k</i> = 4 at 100 %. The concern that a large &phi;<sub>f</sub> would flatten &tau;<sub>test</sub> with respect to <i>k</i> and so weaken the inversion does not materialize, because early discard removes a stack before it reaches the final test and therefore saves that time as well.</p>
 
 <h3>C.&nbsp;&nbsp;Two Distinct Causes for 16-High Stacks</h3>
 
@@ -356,7 +382,11 @@
 
 <h3>E.&nbsp;&nbsp;Parameter Uncertainty and Global Sensitivity</h3>
 
-<p class="noindent">Ten parameters were sampled jointly from triangular distributions over 2,000 draws; 566 draws (28.3 %) were feasible. Infeasibility arises mostly when &beta; or &beta;<sub>f</sub> is too low to meet 200 ppm.</p>
+<p class="noindent">Eleven parameters were sampled jointly from triangular distributions over 2,000 draws; 566 draws (28.3 %) were feasible.
+
+<p><b>Decomposition of infeasibility.</b> Relaxing only C4 restores feasibility in 64.6 % of the infeasible draws; the remaining <b>35.4 % are not a quality problem at all</b> but cases in which the increased &tau;<sub>test</sub> reduces output below the demand floor <i>D<sub>s</sub></i>. The statement in the first version&mdash;that infeasibility is mostly &beta; or &beta;<sub>f</sub> failing to meet 200 ppm&mdash;covers only the first group. (Relaxing C2 instead is uninformative: removing the production floor makes almost every draw feasible.)</p>
+
+<p><b>Truncation bias.</b> Feasibility itself depends on the parameters, so every correlation below is a <b>conditional</b> association on the feasible subsample, not an unconditional effect. A logistic fit on feasibility gives standardized coefficients &theta; &minus;5.54, &beta; +3.91, &beta;<sub>f</sub> +3.35, <i>x</i> +3.07, &phi;<sub>f</sub> &minus;1.53, with all four cost coefficients below 0.15 in magnitude. &theta; dominates the truncation and is also first in the bottleneck column, so its correlation carries the bias directly. That the cost coefficients are inert in the truncation as well is an independent argument for their immateriality.</p>
 
 <div class="tcap">Table XI<br>Monte Carlo distribution (n = 566)</div>
 <table>
@@ -414,6 +444,8 @@
 <tr><td>C1-a + C1-b + C4</td><td>8/12/16-high 48/20/32 %</td><td>3</td></tr>
 </table>
 
+<p><b>The 16-high share is derived, not merely observed.</b> C4 is a summed constraint, so a mix of two configurations whose individual floors straddle the cap must sit exactly on it. With &beta;<sub>f</sub> = 0.95 the floors are 371.0 ppm for 12-high <i>k</i>=2 and 770.1 ppm for 16-high <i>k</i>=4; blending them to 200 ppm... in fact both floors exceed the cap, so the binding mix is set by the pair actually selected, and solving the blend equation for the observed pair gives a predicted 16-high share of <b>2.32 %</b> against <b>2.68 %</b> in Table VIII. The residual is the wafer and demand constraints acting on the same variables. This closes the item left open in the first version, where the 2.7 % share was reported as an unexplained output.</p>
+
 <p>The number of distinct products cannot exceed the number of simultaneously binding constraints. The backbone of the mix is the joint binding of the two capacity constraints, whereas <i>C4 constrains the inspection period</i>. This is the mirror image of the property in Section III-C: DPPM is determined by <i>k</i>, not by <i>L</i>; correspondingly C4 restricts <i>k</i>, not <i>L</i>.</p>
 
 <h3>H.&nbsp;&nbsp;Height Diversity and Period Diversity Are Substitutes</h3>
@@ -422,7 +454,21 @@
 
 <blockquote><p>Diversifying stack height and diversifying inspection period are substitutes for one another.</p></blockquote>
 
-<p>If a 12-high stack can carry two periods, the 16-high configuration is unnecessary; if it cannot, the 16-high configuration takes over that role. The observation is available only because height and inspection are decided jointly, and it does not appear in prior work. <b>At the corrected baseline the opportunity cost is 0.000 %</b>&mdash;the two settings give the identical solution. The earlier figures (+0.11 % / +1.43 %) were obtained at &phi;<sub>f</sub> = 0 and are withdrawn. Moreover only <i>periods</i>, not non-uniform <i>positions</i>, were tested; Appendix A shows the latter is the real direction of improvement.</p>
+<p>If a 12-high stack can carry two periods, the 16-high configuration is unnecessary; if it cannot, the 16-high configuration takes over that role. The observation is available only because height and inspection are decided jointly, and it does not appear in prior work. <b>At the corrected baseline the opportunity cost of the single-period restriction is 0.000 %</b>&mdash;the two settings give the identical solution, so the substitution is observed only where C4 is slack. The figures reported in the first version were obtained at &phi;<sub>f</sub> = 0 and are withdrawn.</p>
+
+<p><b>That measurement was confined to the uniform-period family.</b> What Appendix A.2 predicts is a statement about <i>positions</i>, and the two are different questions. Enumerating all inspection position sets exhaustively (32,768 sets for <i>L</i> = 16) gives the following.</p>
+
+<div class="tcap">Table XV<br>Minimum inspection budget reaching the <i>k</i> = 1 floor</div>
+<table>
+<tr><th><i>L</i></th><th>uniform <i>k</i>=1</th><th>optimal positions</th><th>tester time saved</th></tr>
+<tr><td>8</td><td>8 tests &rarr; 1,908.9 ppm</td><td>5,6,7,8 (4 tests)</td><td><b>50.0 %</b></td></tr>
+<tr><td>12</td><td>12 tests &rarr; 1,908.9 ppm</td><td>8&ndash;12 (5 tests)</td><td><b>58.3 %</b></td></tr>
+<tr><td>16</td><td>16 tests &rarr; 1,908.9 ppm</td><td>12&ndash;16 (5 tests)</td><td><b>68.8 %</b></td></tr>
+</table>
+
+<p class="noindent"><b>The optimal set is always a contiguous block at the top</b>, with 100 % of inspections above mid-stack where a uniform period gives 50 % by construction. At a fixed budget the DPPM improvement over the uniform schedule reaches <b>76.3 %</b> (<i>L</i> = 16, 4 tests: 8,061 &rarr; 1,913 ppm). Since the tester is the binding resource at the baseline, a 68.8 % reduction in inspection count <i>is</i> capacity.</p>
+
+<p><b>Two qualifications.</b> First, this releases Assumption 3, justified in Section III-B by the observation that lines inspect on regular patterns; operational feasibility is a separate question from optimality and is not settled here. Second, under layer-dependent yield the advantage persists at 74&ndash;76 % but the relative gain falls slightly as &delta; grows (76.3 &rarr; 74.2 %) because both schedules&rsquo; floors rise together, so a prior expectation that the advantage would grow with &delta; was only half correct.</p>
 
 <h3>I.&nbsp;&nbsp;Robustness of Revenue Linearity</h3>
 
@@ -432,7 +478,7 @@
 
 <h3>A.&nbsp;&nbsp;Unknown Parameters</h3>
 
-<p class="noindent">The coefficients <i>a</i>, &theta;, <i>r</i>, <i>c</i><sub>base</sub> and <i>c</i><sub>fix,b</sub> have no public absolute values and are handled as triangular scenarios. &beta; is taken from a general chiplet-coverage study rather than HBM measurement. &beta;<sub>f</sub> is confirmed to exist by the literature but its value is inverted from the model. The industry outgoing DPPM target could not be obtained. The mechanism by which 8-high stacks enter the mix remains unexplained.</p>
+<p class="noindent">The coefficients <i>a</i>, &theta;, <b>&phi;<sub>f</sub></b>, <i>r</i>, <i>c</i><sub>base</sub> and <i>c</i><sub>fix,b</sub> have no public absolute values and are handled as triangular scenarios. &beta; is taken from a general chiplet-coverage study rather than HBM measurement. &beta;<sub>f</sub> is confirmed to exist by the literature but its value is inverted from the model, which is circular and is flagged as such. The industry outgoing DPPM target could not be obtained. <b>Above &phi;<sub>f</sub> = 2.03 the layer optimum is a boundary solution, so the true optimum may lie outside the candidate set {8, 12, 16}.</b> The mechanism by which 8-high stacks entered the mix, left unexplained in the first version, is resolved: it was an artifact of the omitted final-test time and 8-high does not appear once that time is charged.</p>
 
 <p>Two literature searches for &theta; and <i>a</i> failed to obtain absolute values. The tester UPH formula and parallel site counts were found, but soak, test, and index times were not, so inversion does not close. A by-product was nevertheless obtained: the internal composition of <i>t</i><sub>stack</sub> decomposes into 2&ndash;3 s of fine alignment and a 3&ndash;8 s thermocompression cycle, whose sum independently supports the 5.4 s baseline.</p>
 
@@ -513,7 +559,31 @@
 
 <p><i>Special case.</i> For <i>k</i> = 1 and &beta; = 1 every defect is detected on occurrence, so E[layer] = (1 &minus; <i>x<sup>L</sup></i>)/(1 &minus; <i>x</i>), the truncated expectation of trials until first failure. At <i>x</i> = 0.965 this equals 7.09, 9.94, and 12.42 for <i>L</i> = 8, 12, 16.</p>
 
-<p><i>Final test.</i> Under Assumption 4 escapes are additionally detected with probability &beta;<sub>f</sub>, so the shipped undetected fraction is <i>p</i><sub>escape</sub>(1 &minus; &beta;<sub>f</sub>). Because the final test is applied to every completed stack, it is a fixed component independent of (<i>L</i>, <i>k</i>): it adds a constant to the objective and does not change the optimum. It is therefore charged to escapes only and not to time or cost.</p>
+<p><i>Final test.</i> Under Assumption 4 escapes are additionally detected with probability &beta;<sub>f</sub>, so the shipped undetected fraction is <i>p</i><sub>escape</sub><sup>post</sup> = <i>p</i><sub>escape</sub><sup>pre</sup>(1 &minus; &beta;<sub>f</sub>). The number of stacks that reach the final test is</p>
+
+<span class="eq"><i>p</i><sub>reach</sub>(<i>L</i>,<i>k</i>) = <i>p</i><sub>good</sub>(<i>L</i>) + <i>p</i><sub>escape</sub><sup>pre</sup>(<i>L</i>,<i>k</i>)</span>
+
+<p class="noindent"><b>This is not a constant.</b> Early discard removes stacks before they complete <i>L</i> layers, so <i>p</i><sub>reach</sub> depends on both <i>k</i> and <i>L</i>. The first version of this report asserted the opposite and charged the final test to escapes only, excluding it from time and cost; that assertion was wrong and is withdrawn. The tester time of the final test enters &tau;<sub>test</sub> as <i>t</i><sub>final</sub> <i>p</i><sub>reach</sub> (Section III-D). Note that <i>p</i><sub>reach</sub> and the shipped quantity <i>p</i><sub>ship</sub> = <i>p</i><sub>good</sub> + <i>p</i><sub>escape</sub><sup>post</sup> differ by &beta;<sub>f</sub> <i>p</i><sub>escape</sub><sup>pre</sup>, about 0.18 % of <i>p</i><sub>ship</sub> at the baseline; the distinction is numerically small but must be kept because this coefficient is the substance of the revision.</p>
+
+<h3>A.2&nbsp;&nbsp;General Closed Form for the Outgoing DPPM Floor</h3>
+
+<p class="noindent">Let <i>L</i> = <i>nk</i> with <i>n</i> = &lfloor;<i>L</i>/<i>k</i>&rfloor;, and group the layers by block <i>b</i> = &lceil;<i>i</i>/<i>k</i>&rceil;. Every layer in block <i>b</i> has the same number of remaining inspection opportunities, <i>m</i> = <i>n</i> &minus; <i>b</i> + 1, and</p>
+
+<span class="eq">&Sigma;<sub><i>i</i> &isin; block <i>b</i></sub> <i>x</i><sup><i>i</i>&minus;1</sup>(1&minus;<i>x</i>) = <i>x</i><sup>(<i>b</i>&minus;1)<i>k</i></sup> (1 &minus; <i>x<sup>k</sup></i>)</span>
+
+<p class="noindent">Substituting <i>s</i> = <i>n</i> &minus; <i>b</i> + 1, so that (<i>b</i>&minus;1)<i>k</i> = <i>L</i> &minus; <i>sk</i>, gives</p>
+
+<span class="eq"><i>p</i><sub>escape</sub><sup>post</sup> = (1&minus;&beta;<sub>f</sub>)(1 &minus; <i>x<sup>k</sup></i>) &middot; <i>x<sup>L</sup></i> &middot; &Sigma;<sub><i>s</i>=1..<i>n</i></sub> <i>&rho;<sup>s</sup></i> ,&nbsp;&nbsp; <i>&rho;</i> = (1&minus;&beta;) / <i>x<sup>k</sup></i></span>
+
+<span class="eq">DPPM<sub>floor</sub> = 10<sup>6</sup> <i>Q</i> / (1 + <i>Q</i>) ,&nbsp;&nbsp; <i>Q</i> = <i>p</i><sub>escape</sub><sup>post</sup> / <i>x<sup>L</sup></i> = (1&minus;&beta;<sub>f</sub>)(1 &minus; <i>x<sup>k</sup></i>) &Sigma;<sub><i>s</i>=1..<i>n</i></sub> <i>&rho;<sup>s</sup></i></span>
+
+<p class="noindent"><b>Independence of stack height.</b> <i>Q</i> contains <i>L</i> only through the number of terms <i>n</i> = &lfloor;<i>L</i>/<i>k</i>&rfloor;. Since <i>&rho;</i> &lt; 1 for any &beta; &gt; 1 &minus; <i>x<sup>k</sup></i>, the geometric series converges and</p>
+
+<span class="eq">lim<sub><i>L</i>&rarr;&infin;</sub> <i>Q</i> = (1&minus;&beta;<sub>f</sub>)(1 &minus; <i>x<sup>k</sup></i>) &middot; <i>&rho;</i> / (1 &minus; <i>&rho;</i>)</span>
+
+<p class="noindent"><b>The floor is therefore asymptotically constant in <i>L</i>.</b> At <i>x</i> = 0.965, &beta; = 0.95, &beta;<sub>f</sub> = 0 the closed form gives 1,908.9 ppm for <i>L</i> = 8, 12 and 16 alike &mdash; identical to the digits reported. For <i>k</i> = 4 the three values are 8,034.6 / 8,059.7 / 8,060.0, a spread of 0.32 %. Agreement with the recursion of Section A.1 is to machine precision (worst relative error 6.4 &times; 10<sup>&minus;16</sup> over 48 combinations). This is the only headline figure in this report that follows from the parameter structure itself rather than from a particular parameter point.</p>
+
+<p><b>Why the floor exists.</b> The dominant term is <i>s</i> = 1, the topmost block. Those <i>k</i> layers have exactly one inspection opportunity by construction. At <i>k</i> = 1, <i>L</i> = 12 the top layer alone contributes 94.8 % of the escape probability (1.1826 &times; 10<sup>&minus;3</sup> of 1.2474 &times; 10<sup>&minus;3</sup>). This is the correct explanation of Section VII-D, and it also implies that the optimal inspection schedule is <b>not</b> uniform: escapes concentrate at the top while early-discard savings are largest at the bottom, so inspections should be denser toward the top. Section VII-H reports the magnitude.</p>
 
 <h2>Appendix B&nbsp;&nbsp;Reproduction</h2>
 

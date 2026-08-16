@@ -42,6 +42,21 @@ TARGETS = [
 ]
 
 
+# 철회·정정 이력 문맥에서는 구 값·구 주장의 인용이 정당하다.
+# 일치 지점 주변 WINDOW 자 안에 아래 표지가 있으면 검출하지 않는다.
+WITHDRAW = (
+    "철회", "정정 이력", "정정 전", "초판", "종전", "폐기",
+    "withdrawn", "withdraw", "first version", "earlier figures",
+    "was wrong", "no longer", "superseded",
+)
+WINDOW = 300
+
+
+def in_withdrawal_context(text, start, end):
+    ctx = text[max(0, start - WINDOW): end + WINDOW]
+    return any(w in ctx for w in WITHDRAW)
+
+
 def load(path):
     p = os.path.join(ROOT, path.replace("/", os.sep))
     return open(p, encoding="utf-8").read() if os.path.exists(p) else None
@@ -134,7 +149,8 @@ def build_rules(C):
 
     # ── 필수 : 통지문 주장의 실체 (2라운드 N1) ─────────────
     required += [
-        ("t_final", "M1 정정 수식이 본문에 있어야 한다 (III-D)"),
+        (r"t_final|t</i><sub>final</sub>|t<sub>final</sub>",
+         "M1 정정 수식이 본문에 있어야 한다 (III-D)"),
         ("phi_final|φ<sub>f</sub>|&phi;<sub>f</sub>|φ_f",
          "φ_f 가 파라미터 표에 있어야 한다 (Table II)"),
     ]
@@ -178,6 +194,8 @@ def main():
         # ① 금지
         for pat, why, good in forbidden:
             for m in re.finditer(pat, t):
+                if in_withdrawal_context(t, m.start(), m.end()):
+                    continue          # 철회·정정 이력 서술은 정당한 인용이다
                 ln = t[:m.start()].count("\n") + 1
                 issues.append(("STALE", ln, m.group()[:40], why, good))
 
