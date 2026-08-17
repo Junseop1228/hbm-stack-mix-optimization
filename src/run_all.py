@@ -60,6 +60,8 @@ STEPS = [
      "data/phi_final_wide_log.txt, phi_final_wide.csv"),
     ("feasibility_decomp.py", "실행불가 사유 분해 + 절단 편향 로지스틱",
      "data/feasibility_decomp_log.txt, feasibility_decomp.csv"),
+    ("check_literature.py", "품질 제약 구속 임계 + 검증 8 재정의(문헌 재현)",
+     "data/check_literature_log.txt"),
     ("canonical.py", "정본 수치 확정 — 원고 대조의 기준",
      "data/canonical_results.json"),
     ("check_manuscript.py", "원고 대조 검사 — 스테일 수치·미실체 주장·언어 오염",

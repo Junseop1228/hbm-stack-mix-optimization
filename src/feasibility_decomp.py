@@ -45,7 +45,9 @@ DIST = {
     "r": (3.0, 5.0, 8.0), "c_base": (0.5, 1.5, 2.0),
     "c_fix_b": (1.0, 4.5, 8.0), "c_test": (0.007, 0.012, 0.017),
 }
-N = 1200
+# 표본 수 — 사유 분해는 비율만 필요하므로 400 이면 SE ≈ 2.4 %p 로 충분하다.
+# 종전 1200 은 draw 당 CBC 재풀이가 겹쳐 파이프라인 한 단계가 30분을 먹었다.
+N = 400
 SEED = 42
 NAMES = list(DIST)
 
@@ -56,7 +58,7 @@ def run(pars, cap=DPPM_CAP, seg=DEMAND_SEG):
                  need_duals=False)["status"] == "Optimal"
 
 
-def logistic(X, y, iters=4000, lr=0.25):
+def logistic(X, y, iters=1500, lr=0.35):
     """표준화 후 경사하강. 계수 크기 비교용."""
     n, p = len(X), len(X[0])
     mu = [sum(r[j] for r in X) / n for j in range(p)]

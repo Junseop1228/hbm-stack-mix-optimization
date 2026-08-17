@@ -288,7 +288,15 @@
 <tr><td>9</td><td>dimensional consistency</td><td>pass</td></tr>
 </table>
 
-<h3>B.&nbsp;&nbsp;Check 8 &mdash; The Only Critical Gate</h3>
+<h3>B.&nbsp;&nbsp;Check 8 &mdash; What It Does and Does Not Verify</h3>
+
+<p class="noindent">Since the claimed contribution is the addition of equipment constraints, removing them should reduce the model to the problem solved in prior work. The check has three components and they do not carry equal weight.</p>
+
+<p><b>(a) The dual equals profit per equipment-second: an identity, with no verifying power.</b> Merging the two resources into a single pool gives a dual of 0.19096 against a directly computed 0.19096. In a linear program with one binding resource and a single optimal configuration this equality is necessary, not evidence. The first version presented it as the substance of the check; that was an overstatement. It confirms implementation consistency and nothing more.</p>
+
+<p><b>(b) An interior optimum in stack height exists: this is the verifying component.</b> With the pool merged and the demand and quality constraints released, profit per equipment-second is 0.17790 for 8-high, 0.19096 for 12-high and 0.18689 for 16-high, so the optimum is interior and unimodal. Reproducing that qualitative conclusion of the prior lineage is what the check is for. It holds conditionally on &phi;<sub>f</sub> &lt; 2.03 (Section VII-B).</p>
+
+<p><b>(c) A published claim of [1]: not reproduced, and the reason is structural.</b> Reference [1] reports that using total cost rather than cost per good package offsets the margin per good stack by about 2 % in a two-die example. In this model the two objectives select the <i>same</i> inspection period for every stack height, so the offset is 0.00 %. The cause is Assumption 2: restricting inspection to early discard makes <i>p</i><sub>good</sub> = <i>x<sup>L</sup></i> independent of <i>k</i> (Section III-C), and two objectives that differ only by that factor then rank periods identically. In [1] the objectives diverge because repair lets the test flow change the yield itself. <b>This is a negative reproduction rather than a failure: it locates the boundary of Assumption 2.</b> The model cannot address problems in which the test flow alters yield, and this is recorded in Section VIII-A.</p>
 
 <p class="noindent">Since the claimed contribution is the addition of equipment constraints, removing them must reduce the model to the problem solved in prior work. A different answer would indicate either a modeling error or an overstated contribution.</p>
 
@@ -474,6 +482,12 @@
 
 <p class="noindent">A per-layer price premium for taller stacks was tested as a scenario. The optimal mix is unchanged up to a 15 % premium on 16-high and first inverts at 25 %. Since observed evidence lies in the 5&ndash;15 % range, this falsifiability is reported as evidence of robustness rather than as a limitation.</p>
 
+<h3>J.&nbsp;&nbsp;Where the Quality Constraint Begins to Bind</h3>
+
+<p class="noindent">The threshold quoted in the Conclusion has a single definition: it is the outgoing DPPM of the optimum obtained with C4 released. Above it the quality constraint is slack and in-line inspection acts only as an equipment-time saving; below it the inspection period is constrained by quality.</p>
+
+<p>Releasing C4 gives a mix of 12-high <i>k</i>=4 at 74.0 % and 16-high <i>k</i>=2 at 26.0 %, with the bonder binding and an outgoing quality of <b>356.8 ppm</b>. Setting the cap on either side confirms the switch: at 285 and 339 ppm the dual of C4 is 94,895 and 10,307, while at 375 and 535 ppm it is exactly zero. The first version quoted 277 ppm without a derivation; that figure belongs to the pre-correction instance and is replaced.</p>
+
 <h2>VIII.&nbsp;&nbsp;Discussion and Limitations</h2>
 
 <h3>A.&nbsp;&nbsp;Unknown Parameters</h3>
@@ -520,7 +534,7 @@
 <ul>
 <li>the bottleneck transition ratio is a function of the quality target, splitting at 425 ppm into a constant regime and a steeply rising one;</li>
 <li>the cause of 16-high adoption differs by yield regime, between demand coercion and economic selection;</li>
-<li>the character of in-line inspection splits at 277 ppm between a quality instrument and a pure equipment-time saving;</li>
+<li>the character of in-line inspection splits at <b>357 ppm</b> &mdash; the outgoing DPPM of the optimum when C4 is released, derived in Section VII-J &mdash; between a quality instrument and a pure equipment-time saving;</li>
 <li>for the final test, existence is decisive and detection precision is not.</li>
 </ul>
 

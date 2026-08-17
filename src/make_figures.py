@@ -111,14 +111,14 @@ def fig1():
             fontweight="bold", ha="center", va="center")
 
     FS.note(ax, 235, 1.135,
-            "200 ppm :  $H_t/H_b$ = 1.14\ntester capacity must exceed bonder",
+            "200 ppm :  $H_t/H_b$ = %.2f\ntester capacity must exceed bonder" % vals[0],
             color=VERMILLION, va="center", size=9, box=True)
     FS.note(ax, 1000, 0.655,
-            "plateau  $H_t/H_b$ = 0.584\nquality target no longer matters",
+            "plateau  $H_t/H_b$ = %.3f\nquality target no longer matters" % vals[-1],
             color=GREY_D, va="bottom", size=9, box=True)
     ax.text(XMIN * 1.06, 1.012, "tester capacity  =  bonder capacity",
             color=GREY_M, fontsize=8.5, va="bottom", ha="left")
-    ax.text(KNEE * 1.06, 0.505, "knee\n425 ppm", color=GREY_D, fontsize=8.5,
+    ax.text(KNEE * 1.06, 0.505, "knee\n%d ppm" % KNEE, color=GREY_D, fontsize=8.5,
             va="bottom", ha="left", linespacing=1.3)
 
     ax.set_xscale("log")
