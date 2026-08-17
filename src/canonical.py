@@ -208,6 +208,21 @@ def attach_external(out):
         out["transition"] = {"by_cap": tr, "plateau": plateau, "knee_ppm": knee,
                              "at_cap_200": tr.get("200")}
 
+    # 유일성·축퇴 (3라운드 T-1 #20) — 보고 자릿수의 근거
+    f = os.path.join(D, "degeneracy_log.txt")
+    if os.path.exists(f):
+        t = open(f, encoding="utf-8").read()
+        d = {}
+        m = re.search(r"실행가능 조합 (\d+)개 / 최적값 도달 조합 \*\*(\d+)개\*\*", t)
+        if m:
+            d["feasible_assignments"] = int(m.group(1))
+            d["optimal_ties"] = int(m.group(2))
+        m = re.search(r"최대 폭 ([\d.]+) %p", t)
+        if m:
+            d["max_share_width_pp"] = float(m.group(1))
+        d["mix_unique"] = "믹스는 유일" in t or "정수 층위 **유일**" in t
+        out["degeneracy"] = d
+
     # 제약별 귀속 분해 (표 XIII) — 인스턴스 서명을 검증한 뒤에만 채택한다.
     # 3라운드 T-1 #18: 이 산출이 파이프라인 밖(CHECKS)에 있어 스크립트는 정상인데
     # 원고만 v1 값(8/12/16 = 48/20/32 %, 3종)으로 남았다. 검사기가 규칙을 갖지

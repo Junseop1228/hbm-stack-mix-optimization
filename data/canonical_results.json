@@ -257,6 +257,12 @@
     "knee_ppm": 425.0,
     "at_cap_200": 1.2872
   },
+  "degeneracy": {
+    "feasible_assignments": 44,
+    "optimal_ties": 4,
+    "max_share_width_pp": 2.6e-05,
+    "mix_unique": true
+  },
   "constraint_attribution": {
     "rows": {
       "all": {

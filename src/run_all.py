@@ -64,6 +64,8 @@ STEPS = [
      "data/check_literature_log.txt"),
     ("check_constraint_attribution.py", "제약별 귀속 분해 — 표 XIII 산출",
      "data/constraint_attribution_log.txt"),
+    ("check_degeneracy.py", "최적해 유일성·축퇴 — 보고 자릿수의 상한",
+     "data/degeneracy_log.txt"),
     ("canonical.py", "정본 수치 확정 — 원고 대조의 기준",
      "data/canonical_results.json"),
     ("check_manuscript.py", "원고 대조 검사 — 스테일 수치·미실체 주장·언어 오염",

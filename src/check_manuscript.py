@@ -181,6 +181,15 @@ def build_rules(C):
         (r"절반 이상이 실행 불가|over half of parameter draws", "실측 71.7 % 로 대체"),
     ):
         forbidden.append((bad, why, "표 XIII/X/XIV 재산출값"))
+    # ── 유일성 보고 (3라운드 T-1 #20) ──────────────────────
+    dg = C.get("degeneracy", {})
+    if dg.get("mix_unique"):
+        required.append((r"이 해는 유일하다|This solution is unique",
+                         "97.3 % 의 자릿수 근거(유일성)가 본문에 있어야 한다"))
+    elif dg:
+        forbidden.append((r"97\.3\s*%|97\.3\s*&nbsp;%",
+                          "믹스가 유일하지 않은데 소수 자리로 보고", "정수 자리"))
+
     a = attr.get("rows", {}).get("all")
     if a:
         required.append((r"12단 97 %, 16단 3 %|12-high 97 %, 16-high 3 %",

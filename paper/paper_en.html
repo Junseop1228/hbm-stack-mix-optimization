@@ -323,6 +323,8 @@
 <tr><td>outgoing DPPM</td><td>200 ppm (binding)</td></tr>
 </table>
 
+<p><b>This solution is unique.</b> Reporting 97.3 % to one decimal place is only legitimate if no alternative optimum exists, so we check two levels separately. At the integer level we enumerate all 4<sup>3</sup>=64 assignments of a single <i>k</i> per height and solve each as a pure linear program. Of the 44 feasible assignments, four attain the optimal value, and <b>all four yield the identical production mix</b>; they differ only in the <i>k</i> label attached to the 8-high configuration, whose quantity is zero. Since &Sigma;<sub><i>k</i></sub> <i>y</i><sub><i>Lk</i></sub> &le; 1 does not pin down <i>k</i> for an unused height, this is degeneracy in <i>y</i>, not in the mix. At the continuous level we fix the objective at its optimal value and minimize and maximize each <i>q</i><sub><i>Lk</i></sub> in turn; the widest share interval is 2.6&times;10<sup>&minus;5</sup> pp, at solver tolerance. One decimal place is therefore justified. The statement is confined to the baseline instance: in the transition band (0.9650&ndash;0.9800 in Table X) the binding set changes and the same precision is not guaranteed.</p>
+
 <figure class="span">
   <img src="fig/fig1_bottleneck_vs_quality.png" alt="Bottleneck transition versus quality target">
   <figcaption>Fig. 1.&nbsp;&nbsp;Bottleneck transition ratio versus outgoing quality limit. Below the transition ratio the tester is the bottleneck; above it the bonder is. The curve is flat above the 425 ppm knee and rises steeply below it.</figcaption>
