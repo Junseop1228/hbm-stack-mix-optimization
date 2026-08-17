@@ -181,6 +181,19 @@ def build_rules(C):
         (r"절반 이상이 실행 불가|over half of parameter draws", "실측 71.7 % 로 대체"),
     ):
         forbidden.append((bad, why, "표 XIII/X/XIV 재산출값"))
+    # ── 초록 수치 (3라운드 자체 발견) ─────────────────────
+    # KO 초록의 병목 전환점이 1.140(M1 정정 전)으로 남아 EN 초록 1.287 과
+    # 어긋난 채 2라운드를 통과했다. 초록은 본문과 별도로 대조해야 한다.
+    if tr.get("at_cap_200") is not None:
+        v = tr["at_cap_200"]
+        forbidden.append((r"1\.140", "M1 정정 전 병목 전환점", str(v)))
+        required.append((re.escape("%.3f" % v) + r"|" + re.escape("%.4f" % v),
+                         "cap 200 ppm 전환점이 초록·본문에 있어야 한다"))
+    if tr.get("plateau") is not None:
+        required.append((re.escape(str(tr["plateau"])) + r"|" +
+                         re.escape("%.3f" % tr["plateau"]),
+                         "평탄역 전환점이 보고돼야 한다"))
+
     # ── 유일성 보고 (3라운드 T-1 #20) ──────────────────────
     dg = C.get("degeneracy", {})
     if dg.get("mix_unique"):
