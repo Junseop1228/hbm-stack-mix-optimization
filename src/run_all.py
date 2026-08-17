@@ -66,6 +66,8 @@ STEPS = [
      "data/constraint_attribution_log.txt"),
     ("check_degeneracy.py", "최적해 유일성·축퇴 — 보고 자릿수의 상한",
      "data/degeneracy_log.txt"),
+    ("check_layer_approx.py", "III-C 유도 — E[layer] 를 L 로 근사했을 때의 임계 이동",
+     "data/layer_approx_log.txt"),
     ("canonical.py", "정본 수치 확정 — 원고 대조의 기준",
      "data/canonical_results.json"),
     ("check_manuscript.py", "원고 대조 검사 — 스테일 수치·미실체 주장·언어 오염",

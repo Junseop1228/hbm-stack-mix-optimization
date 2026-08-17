@@ -17,7 +17,10 @@ check_manuscript.py — 원고의 수치를 정본 JSON 과 대조한다
    "값 자체는 그럴듯한" 오류를 잡는 유일한 방법이다.
 ② **필수 문자열 검사** — 정본 값이 원고에 실제로 존재하는지.
 ③ **주장-실체 검사** — 개정 통지문이 주장한 것이 본문에 실재하는지 (2라운드 N1).
-④ **언어 오염 검사** — 영문 원고에 한글, 국문 원고에 미번역 잔여.
+④ **언어 오염 검사** — 영문 원고에 한글 잔존.
+
+2026.08.17 부터 논문은 영문 단일 유지다. 국문판은 paper/_archive_ko/ 로
+동결했으며 대조 대상에서 제외했다.
 
 exit code 1 로 종료하면 run_all 파이프라인이 중단된다.
 
@@ -34,7 +37,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
 TARGETS = [
-    ("paper/paper_ko.html", "ko"),
     ("paper/paper_en.html", "en"),
     ("docs/07_Results.md", "ko"),
     ("docs/11_Report.md", "ko"),

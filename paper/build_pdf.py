@@ -6,10 +6,9 @@ build_pdf.py — 논문 원고(HTML) → PDF
 변환 경로 : HTML + ieee.css → Chrome headless --print-to-pdf
 
 LaTeX 이 설치돼 있지 않은 환경이므로 Chrome 의 인쇄 엔진을 쓴다.
-한글 서체(바탕/맑은고딕)가 OS 에 있으므로 별도 폰트 임베딩이 필요 없다.
+2026.08.17 부터 영문 단일 유지다. 국문판은 paper/_archive_ko/ 로 동결했다.
 
-    python paper/build_pdf.py            # 두 판 모두
-    python paper/build_pdf.py ko         # 한국어판만
+    python paper/build_pdf.py            # 영문판 생성
 """
 
 import os
@@ -31,7 +30,6 @@ CHROME_CANDIDATES = [
 ]
 
 EDITIONS = {
-    "ko": ("paper_ko.html", "HBM_Stack_Mix_Optimization_KO.pdf"),
     "en": ("paper_en.html", "HBM_Stack_Mix_Optimization_EN.pdf"),
 }
 

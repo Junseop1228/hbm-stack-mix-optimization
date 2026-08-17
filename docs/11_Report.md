@@ -7,7 +7,7 @@
 > | 찾는 것 | 위치 |
 > |---|---|
 > | **모든 수치의 정본** | [`07_Results.md`](07_Results.md) |
-> | **전체 서술이 담긴 논문** | [한국어 PDF](../paper/HBM_Stack_Mix_Optimization_KO.pdf) · [English PDF](../paper/HBM_Stack_Mix_Optimization_EN.pdf) |
+> | **전체 서술이 담긴 논문** | [English PDF](../paper/HBM_Stack_Mix_Optimization_EN.pdf) |
 > | 모델 정의·선행연구·참고문헌 | [`01_Spec.md`](01_Spec.md) |
 > | 파라미터 근거와 등급 | [`06_Parameters.md`](06_Parameters.md) |
 >

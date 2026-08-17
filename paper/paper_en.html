@@ -72,6 +72,8 @@
 <tr><td><b>12- to 16-high tractability</b></td><td><b>Gap</b></td><td>experiments up to 5 dies</td></tr>
 </table>
 
+<p class="noindent">The quality axis of this lineage rests on the classical relation between fault coverage and outgoing defect level [4], while the cost axis continues through the 3D-COSTAR family, extended to 2.5D interposer configurations [6]. Neither axis places equipment throughput in the model.</p>
+
 <h3>B.&nbsp;&nbsp;Objective Function in Prior Work</h3>
 
 <p class="noindent">Agrawal and Chakrabarty demonstrate experimentally that cost per good package dominates total cost as an objective. In a two-die example, using total cost offsets the profit margin per good stack by 2 %, and they note that the loss can grow materially at larger scales.</p>
@@ -128,6 +130,8 @@
 <tr><td><i>Q</i></td><td>outgoing DPPM limit</td><td>200 ppm</td><td>unknown</td></tr>
 </table>
 
+<p><sup>&dagger;</sup>C3 pools base and core dies into a single supply <i>W</i>. In practice the two use separate processes and wafers, so this pooling&mdash;which implies an identical base-die requirement at every height&mdash;is an approximation. The model therefore lacks the path by which the height mix would be further constrained through base-die demand, and the omission biases the 16-high share upward.</p>
+
 <p>Grades are A (literature or standard), B (inferred from industry sources), C (assumption), and unknown. Unknown entries are handled as triangular-distribution scenarios in Sections V-D and VII-E.</p>
 
 <div class="tcap">Table III<br>Decision variables</div>
@@ -145,7 +149,7 @@
 
 <p><i>Rationale.</i> Modeling repair would require process data on which defects are repairable, and no public source provides it. Early discard alone defines the economic value of inspection, and it maps directly onto equipment time.</p>
 
-<p><i>Assumption 3.</i> In-line inspection follows a layer-wise periodic pattern only&mdash;one test every <i>k</i> layers&mdash;and exactly one period is chosen per stack height.</p>
+<p><i>Assumption 3.</i> In-line inspection follows a layer-wise periodic pattern only&mdash;one test every <i>k</i> layers&mdash;and exactly one period is chosen per stack height. Two considerations motivate this. Inspection plans on the floor are run as regular patterns rather than decided layer by layer, and admitting an arbitrary set of inspection positions makes the number of decision variables grow exponentially in stack height, at which point the optimization does not close. The consequences of relaxing this assumption are reported separately in Section VII-H.</p>
 
 <p><i>Rationale.</i> Production lines inspect on regular patterns of one, two, or four layers depending on the assembly house. Arbitrary combinations of inspection positions are not operable, and running two different periods for the same product for the same reason. The opportunity cost of this restriction is quantified in Section VII-H.</p>
 
@@ -153,7 +157,7 @@
 
 <p><i>Rationale.</i> The standard HBM flow comprises an initial wafer-level test, an <i>optional</i> post-stack inspection, and a final test after package assembly. Because the intermediate step is optional, <i>k</i> is a decision variable; because the final test is always performed, &beta;<sub>f</sub> is a parameter.</p>
 
-<p><i>Assumption 5.</i> Escapes are shipped and counted in DPPM, but are returned or replaced and therefore not recognized as revenue. This matches the standard treatment of cost of poor quality.</p>
+<p><i>Assumption 5.</i> Escapes are shipped and counted in DPPM, but are returned or replaced and therefore not recognized as revenue. This matches the standard treatment of cost of poor quality. The model carries no per-escape penalty &pi; for return handling or loss of trust. The dual of C4 therefore answers only <b>what it costs to tighten the limit <i>Q</i> by 1 ppm</b>, not what an escape itself costs. Introducing &pi; would move the optimal inspection period in one direction only: shorter.</p>
 
 <p><i>Assumption 6.</i> All output is sold. HBM is in a supply-constrained regime, and this premise justifies the objective chosen in Section IV.</p>
 
@@ -180,7 +184,7 @@
 
 <span class="eq">E[layer] = (1 &minus; <i>x<sup>L</sup></i>) / (1 &minus; <i>x</i>)</span>
 
-<p class="noindent">At <i>x</i> = 0.965 and <i>L</i> = 16 this gives 12.42, which is 22 % below <i>L</i>. Approximating this quantity by <i>L</i> overestimates the stack-height transition threshold by roughly a factor of four.</p>
+<p class="noindent">At <i>x</i> = 0.965 and <i>L</i> = 16 this gives 12.42, which is 22 % below <i>L</i>. Approximating this quantity by <i>L</i> overestimates the stack-height transition threshold by roughly a factor of four. The derivation is as follows. Ignoring early discard charges the discard loss in proportion to <i>L</i> rather than to E[layer], and the resulting overstatement differs by height, so it is amplified in a comparison across heights. At the baseline parameters the 8&rarr;12 threshold <i>a</i> moves from 1.39 to <b>5.98</b>, a factor of <b>4.30</b>, and under the approximation the 12&rarr;16 transition does not appear within the search range.</p>
 
 <h3>D.&nbsp;&nbsp;Block T &mdash; Equipment and Cost</h3>
 
@@ -215,7 +219,7 @@
 
 <p class="noindent">The first formulation used profit per unit of equipment time&mdash;the analogue of cost per good package&mdash;and linearized it by the Charnes&ndash;Cooper transformation. When executed, <i>every capacity constraint returned a shadow price of zero</i>. The cause was not the implementation but the formulation.</p>
 
-<blockquote><p>A fractional objective is scale-invariant. Against the instruction &ldquo;maximize profit per hour,&rdquo; the model&rsquo;s optimal response is to produce less. There is no incentive to exhaust capacity, so the capacity constraints never bind and bottleneck identification is undefined.</p></blockquote>
+<blockquote><p>A fractional objective is scale-invariant. Because the objective is homogeneous of degree zero in <i>q</i>, only the optimal ratio is determined and <b>scale is a matter of indifference</b>: the model does not prefer to produce less, it simply has <i>no incentive</i> to exhaust capacity. The capacity constraints therefore never bind and bottleneck identification is undefined.</p></blockquote>
 
 <p>Switching to total profit not only removes the pathology but yields the following:</p>
 
@@ -223,7 +227,7 @@
 
 <p>The per-unit metric therefore need not be imposed as an objective; it emerges as the dual, and the bottleneck is the larger of the two duals. Section VI-B confirms this numerically.</p>
 
-<p>The reference work recommends cost per good package in a setting without capacity constraints and with production volume given. Once capacity is a hard constraint and volume is endogenous, maximizing total profit <i>is</i> maximizing profit per equipment-hour, and that value appears as the dual. This report thus states the condition under which the two objectives coincide.</p>
+<p>The reference work recommends cost per good package in a setting without capacity constraints and with production volume given. Once capacity is a hard constraint and volume is endogenous, maximizing total profit <i>is</i> maximizing profit per equipment-hour, and that value appears as the dual. This report thus states the condition under which the two objectives coincide. That equivalence holds <b>only when a single resource binds</b>. With two resources both binding, the denominator &ldquo;time&rdquo; is not uniquely defined and the ratio objective is not pinned down. In the baseline the bonder runs at 69.9 % and the tester at 100.0 %, so exactly one resource binds and the condition is met.</p>
 
 <h3>C.&nbsp;&nbsp;Constraints</h3>
 
@@ -233,7 +237,7 @@
 <tr><td>C1-a</td><td>bonder throughput</td><td>&Sigma; &tau;<sub>bond</sub> <i>q</i> &le; <i>H<sub>b</sub></i></td></tr>
 <tr><td>C1-b</td><td>tester throughput</td><td>&Sigma; &tau;<sub>test</sub> <i>q</i> &le; <i>H<sub>t</sub></i></td></tr>
 <tr><td>C2</td><td>customer capacity demand</td><td>&Sigma;<sub>L&ge;L<sub>s</sub></sub> <i>cL p</i><sub>good</sub> <i>q</i> &ge; <i>D<sub>s</sub></i> &nbsp;&forall;<i>s</i>&isin;<i>S</i></td></tr>
-<tr><td>C3</td><td>wafer supply</td><td>&Sigma; (1 + E[layer]) <i>q</i> &le; <i>W</i></td></tr>
+<tr><td>C3<sup>&dagger;</sup></td><td>wafer supply</td><td>&Sigma; (1 + E[layer]) <i>q</i> &le; <i>W</i></td></tr>
 <tr><td>C4</td><td>outgoing quality</td><td>&Sigma; (<i>p</i><sub>escape</sub> &minus; <i>Q p</i><sub>ship</sub>) <i>q</i> &le; 0</td></tr>
 <tr><td>&mdash;</td><td>one period per height</td><td>&Sigma;<sub><i>k</i></sub> <i>y<sub>Lk</sub></i> &le; 1 &nbsp;&forall;<i>L</i>, &nbsp; <i>q<sub>Lk</sub></i> &le; <i>M<sub>Lk</sub> y<sub>Lk</sub></i> &nbsp;&forall;(<i>L</i>,<i>k</i>)</td></tr>
 </table>
@@ -377,8 +381,10 @@
 <tr><td>&le; 0.9500</td><td>36&ndash;52 %</td><td>C2 binding &mdash; <b>demand forces</b></td></tr>
 <tr><td>0.9525&ndash;0.9625</td><td><b>0 %</b></td><td>C2 slack &mdash; economics cannot justify</td></tr>
 <tr><td>0.9650&ndash;0.9800</td><td>3&ndash;82 %</td><td>transition; binding set varies</td></tr>
-<tr><td>&ge; 0.9825</td><td><b>100 %</b></td><td>C1-a only &mdash; <b>economics selects</b></td></tr>
+<tr><td>&ge; 0.9825</td><td><b>100 %</b><sup>&dagger;</sup></td><td>C1-a only &mdash; <b>economics selects</b></td></tr>
 </table>
+
+<p class="noindent"><sup>&dagger;</sup>The model imposes no per-height production ceiling, so a single height taking 100 % is an <b>artifact of the formulation</b> rather than a prediction. In practice customer-specific height requirements and line-changeover costs act as ceilings. What should be read here is not the absolute share but the fact that the binding set collapses to C1-a alone.</p>
 
 <p>The same observation&mdash;the presence of 16-high stacks&mdash;has opposite causes at the two ends. At low yield the total capacity target must be met even with poor yield; at high yield the demand constraint goes slack and equipment economics alone selects the tall configuration. The interpretation rule that distinguishes these two cases was fixed before execution, so no post-hoc narrative was fitted to the outcome.</p>
 
@@ -457,7 +463,7 @@
 
 <p><b>The 16-high share is derived, not merely observed.</b> C4 is a summed constraint, so a mix of two configurations whose individual floors straddle the cap must sit exactly on it. With &beta;<sub>f</sub> = 0.95 the floors are 371.0 ppm for 12-high <i>k</i>=2 and 770.1 ppm for 16-high <i>k</i>=4; blending them to 200 ppm... in fact both floors exceed the cap, so the binding mix is set by the pair actually selected, and solving the blend equation for the observed pair gives a predicted 16-high share of <b>2.32 %</b> against <b>2.68 %</b> in Table VIII. The residual is the wafer and demand constraints acting on the same variables. This closes the item left open in the first version, where the 2.7 % share was reported as an unexplained output.</p>
 
-<p>The number of distinct products cannot exceed the number of simultaneously binding constraints. The backbone of the mix is the joint binding of the two capacity constraints, whereas <i>C4 constrains the inspection period</i>. This is the mirror image of the property in Section III-C: DPPM is determined by <i>k</i>, not by <i>L</i>; correspondingly C4 restricts <i>k</i>, not <i>L</i>.</p>
+<p>That the number of distinct products cannot exceed the number of simultaneously binding constraints is not a finding of this model but a <b>standard property of linear-programming basic solutions</b>: the number of nonzero variables in a basic solution cannot exceed the number of binding constraints. What is established here is not the general property but <i>which</i> constraints occupy those slots in this problem. The backbone of the mix is the joint binding of the two capacity constraints, whereas <i>C4 constrains the inspection period</i>. This is the mirror image of the property in Section III-C: DPPM is determined by <i>k</i>, not by <i>L</i>; correspondingly C4 restricts <i>k</i>, not <i>L</i>.</p>
 
 <h3>H.&nbsp;&nbsp;Height Diversity and Period Diversity Are Substitutes</h3>
 
@@ -497,7 +503,7 @@
 
 <p class="noindent">The coefficients <i>a</i>, &theta;, <b>&phi;<sub>f</sub></b>, <i>r</i>, <i>c</i><sub>base</sub> and <i>c</i><sub>fix,b</sub> have no public absolute values and are handled as triangular scenarios. &beta; is taken from a general chiplet-coverage study rather than HBM measurement. &beta;<sub>f</sub> is confirmed to exist by the literature but its value is inverted from the model, which is circular and is flagged as such. The industry outgoing DPPM target could not be obtained. <b>Above &phi;<sub>f</sub> = 2.03 the layer optimum is a boundary solution, so the true optimum may lie outside the candidate set {8, 12, 16}.</b> The mechanism by which 8-high stacks entered the mix, left unexplained in the first version, is resolved: it was an artifact of the omitted final-test time and 8-high does not appear once that time is charged.</p>
 
-<p>Two literature searches for &theta; and <i>a</i> failed to obtain absolute values. The tester UPH formula and parallel site counts were found, but soak, test, and index times were not, so inversion does not close. A by-product was nevertheless obtained: the internal composition of <i>t</i><sub>stack</sub> decomposes into 2&ndash;3 s of fine alignment and a 3&ndash;8 s thermocompression cycle, whose sum independently supports the 5.4 s baseline.</p>
+<p>Two literature searches for &theta; and <i>a</i> failed to obtain absolute values. The tester UPH formula and parallel site counts were found, but soak, test, and index times were not, so inversion does not close. A by-product was nevertheless obtained: the internal composition of <i>t</i><sub>stack</sub> decomposes into 2&ndash;3 s of fine alignment and a 3&ndash;8 s thermocompression cycle. Their sum spans 5&ndash;11 s, so the 5.4 s baseline sits at the <b>lower end of that range</b>. No independent source names 5.4 s; the claim is only that 5.4 s falls inside the range.</p>
 
 <h3>B.&nbsp;&nbsp;Why No Comparison to Industry DPPM</h3>
 
@@ -556,7 +562,7 @@
 <li>M. Taouil <i>et al.</i>, &ldquo;Using 3D-COSTAR for 2.5D Test Cost Optimization,&rdquo; <i>3DIC</i>, 2013, doi:10.1109/3DIC.2013.6702351.</li>
 <li>M. Taouil <i>et al.</i>, &ldquo;Impact of Mid-Bond Testing in 3D Stacked ICs,&rdquo; <i>DFT</i>, 2013.</li>
 <li>M. Taouil, S. Hamdioui, and E. J. Marinissen, &ldquo;Quality versus Cost Analysis for 3D Stacked ICs,&rdquo; <i>Proc. VTS</i>, 2014, doi:10.1109/VTS.2014.6818763.</li>
-<li>&ldquo;Yield and Cost Modeling for 3D Chip Stack Technologies,&rdquo; IEEE Xplore 4114978, 2006.</li>
+<li>P. P. Mercier and K. Iniewski, &ldquo;Yield and Cost Modeling for 3D Chip Stack Technologies,&rdquo; Proc. IEEE Custom Integrated Circuits Conf. (CICC), 2006, IEEE Xplore 4114978.</li>
 <li>A. K. Coskun, A. B. Kahng, and T. S. Rosing, &ldquo;Temperature- and Cost-Aware Design of 3D Multiprocessor Architectures,&rdquo; <i>DSD</i>, 2009.</li>
 <li>N. P. Rougier, M. Droettboom, and P. E. Bourne, &ldquo;Ten Simple Rules for Better Figures,&rdquo; <i>PLOS Comput. Biol.</i>, vol. 10, no. 9, e1003833, 2014, doi:10.1371/journal.pcbi.1003833.</li>
 <li>M. Okabe and K. Ito, &ldquo;Color Universal Design,&rdquo; 2008. [Online]. Available: https://jfly.uni-koeln.de/color/</li>
@@ -604,7 +610,9 @@
 
 <h2>Appendix B&nbsp;&nbsp;Reproduction</h2>
 
-<p class="noindent">Installing the two dependencies and running <code>python src/run_all.py</code> executes a ten-stage pipeline in about four minutes and regenerates every artifact under <code>data/</code> and <code>figures/</code>. The linear-programming solver is the CBC binary bundled with PuLP, so no separate installation is required. The stages are: validation and threshold computation; the coupled MILP with checks 7&ndash;9; scenarios and Monte Carlo; the DPPM-limit sweep; demand-segment inversion; bottleneck bisection; the transition curve; the yield sweep; figure generation; and automated figure inspection. Individual falsification scripts are excluded from the pipeline and run on demand.</p>
+<p class="noindent">Installing the two dependencies and running <code>python src/run_all.py</code> executes a <b>24-stage</b> pipeline in about seven and a half minutes (447 s measured) and regenerates every artifact under <code>data/</code> and <code>figures/</code>. The linear-programming solver is the CBC binary bundled with PuLP, so no separate installation is required. The stages are: Block Y validation and threshold computation; the coupled MILP with checks 7&ndash;9; scenarios and parameter Monte Carlo; the DPPM-limit sweep; demand-segment inversion; bottleneck bisection; the transition curve; the yield sweep; figure generation and automated figure inspection; event-level Monte Carlo; the closed-form DPPM floor; the final-test time-ratio surface; exhaustive enumeration of non-uniform inspection positions; per-layer yield scenarios with EVPPI; the wide &phi;<sub>f</sub> sweep; decomposition of infeasibility causes; the quality threshold and the redefinition of check 8; constraint attribution; the uniqueness and degeneracy check; the Section III-C approximation derivation; canonical-value fixing; and the manuscript cross-check. The last two stages enforce that every figure in this manuscript agrees with the re-executed model, and any mismatch halts the pipeline.</p>
+
+<p>Every stage that draws random numbers fixes <code>random.seed(42)</code> and <code>numpy.random.default_rng(42)</code>. The Monte Carlo uses common random numbers, so scenarios are compared on identical samples. The environment is Python 3.11, PuLP 2.7 (bundled CBC 2.10), NumPy 1.26, SciPy 1.11 and Matplotlib 3.8. Figures follow a colour-vision-deficiency-safe palette [12] and data-ink principles [11], and axis overflow, text collision and curve occlusion are checked automatically by <code>src/fig_audit.py</code>.</p>
 </div>
 
 </div>
