@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-phi_final_sweep_wide.py — N3: φ_f ∈ [1, 20] 광역 스윕
+phi_final_wide.py — N3: φ_f ∈ [1, 20] 광역 스윕
 
 2라운드 지적 (N3)
 -----------------
