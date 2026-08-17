@@ -370,9 +370,9 @@
 <div class="tcap">표 X. 수율 구간별 체제</div>
 <table>
 <tr><th><i>x</i> 구간</th><th>16단 비중</th><th>구속 제약</th></tr>
-<tr><td>&le; 0.9500</td><td>15~44 %</td><td>C2 구속 &mdash; <b>수요가 강제</b></td></tr>
+<tr><td>&le; 0.9500</td><td>36~52 %</td><td>C2 구속 &mdash; <b>수요가 강제</b></td></tr>
 <tr><td>0.9525~0.9625</td><td><b>0 %</b></td><td>C2 비구속 &mdash; 경제성으로는 이기지 못함</td></tr>
-<tr><td>0.9650~0.9800</td><td>3~80 %</td><td>전환 구간, 구속 조합이 변화</td></tr>
+<tr><td>0.9650~0.9800</td><td>3~82 %</td><td>전환 구간, 구속 조합이 변화</td></tr>
 <tr><td>&ge; 0.9825</td><td><b>100 %</b></td><td>C1-a만 구속 &mdash; <b>경제성이 선택</b></td></tr>
 </table>
 
@@ -443,12 +443,12 @@
 
 <div class="tcap">표 XIII. 제약별 귀속 분해</div>
 <table>
-<tr><th>활성 제약</th><th>층수 배분</th><th>종수</th></tr>
-<tr><td>C3만</td><td>12단 100 %</td><td>1</td></tr>
-<tr><td>C4만</td><td>12단 100 %</td><td>1</td></tr>
-<tr><td>C2만</td><td>12단 100 %</td><td>1</td></tr>
-<tr><td>C1-a + C1-b</td><td>12단 58 %, 16단 42 %</td><td>2</td></tr>
-<tr><td>C1-a + C1-b + C4</td><td>8/12/16단 48/20/32 %</td><td>3</td></tr>
+<tr><th>활성 제약</th><th>층수 배분</th><th>주기 배분</th><th>종수</th></tr>
+<tr><td>C3만</td><td>12단 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C4만</td><td>12단 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C2만</td><td>12단 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C1-a + C1-b</td><td>12단 74 %, 16단 26 %</td><td><i>k</i>=2 26 %, <i>k</i>=4 74 %</td><td>2</td></tr>
+<tr><td>C1-a + C1-b + C4</td><td>12단 97 %, 16단 3 %</td><td><i>k</i>=2 97 %, <i>k</i>=4 3 %</td><td>2</td></tr>
 </table>
 
 <p><b>16단 비중은 관측값이 아니라 유도된다.</b> C4는 합산 제약이므로 개별 하한이 상한을 사이에 두는 두 구성의 혼합은 정확히 상한 위에 놓인다. &beta;<sub>f</sub> = 0.95에서 하한은 12단 <i>k</i>=2가 371.0 ppm, 16단 <i>k</i>=4가 770.1 ppm이며, 실제 선택된 쌍에 대해 블렌딩 식을 풀면 16단 비중 <b>2.32 %</b>가 예측된다. 표 VIII의 실측은 <b>2.68 %</b>다. 차이는 웨이퍼·수요 제약이 같은 변수에 작용한 결과다. 초판에서 2.7 %를 설명되지 않은 산출로 보고했던 항목이 이로써 닫힌다.</p>
@@ -505,8 +505,8 @@
 <table>
 <tr><th>결론</th><th>조건</th></tr>
 <tr><td>&beta; &le; 0.88이면 매 층 검사해도 실행 불가</td><td>&beta;<sub>f</sub>=0.95, 상한 200 ppm</td></tr>
-<tr><td>파라미터 조합의 절반 이상이 실행 불가</td><td>동일 + &beta;, &beta;<sub>f</sub> 분포</td></tr>
-<tr><td>기준 믹스 = 8단k2 + 12단k2 + 16단k4</td><td>&ge;12단 수요 비중 0.70</td></tr>
+<tr><td>파라미터 조합의 71.7 %가 실행 불가</td><td>동일 + &beta;, &beta;<sub>f</sub> 분포</td></tr>
+<tr><td>기준 믹스 = 12단<i>k</i>=2 97 % + 16단<i>k</i>=4 3 %</td><td>&ge;12단 수요 비중 0.70</td></tr>
 <tr><td>전환 구간의 층수 배분</td><td>가정 3 하</td></tr>
 </table>
 

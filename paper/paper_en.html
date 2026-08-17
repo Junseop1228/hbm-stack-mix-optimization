@@ -371,9 +371,9 @@
 <div class="tcap">Table X<br>Regimes over per-layer yield</div>
 <table>
 <tr><th>Range of <i>x</i></th><th>16-high share</th><th>Binding constraints</th></tr>
-<tr><td>&le; 0.9500</td><td>15&ndash;44 %</td><td>C2 binding &mdash; <b>demand forces</b></td></tr>
+<tr><td>&le; 0.9500</td><td>36&ndash;52 %</td><td>C2 binding &mdash; <b>demand forces</b></td></tr>
 <tr><td>0.9525&ndash;0.9625</td><td><b>0 %</b></td><td>C2 slack &mdash; economics cannot justify</td></tr>
-<tr><td>0.9650&ndash;0.9800</td><td>3&ndash;80 %</td><td>transition; binding set varies</td></tr>
+<tr><td>0.9650&ndash;0.9800</td><td>3&ndash;82 %</td><td>transition; binding set varies</td></tr>
 <tr><td>&ge; 0.9825</td><td><b>100 %</b></td><td>C1-a only &mdash; <b>economics selects</b></td></tr>
 </table>
 
@@ -444,12 +444,12 @@
 
 <div class="tcap">Table XIII<br>Constraint attribution</div>
 <table>
-<tr><th>Active constraints</th><th>Height allocation</th><th>Kinds</th></tr>
-<tr><td>C3 only</td><td>12-high 100 %</td><td>1</td></tr>
-<tr><td>C4 only</td><td>12-high 100 %</td><td>1</td></tr>
-<tr><td>C2 only</td><td>12-high 100 %</td><td>1</td></tr>
-<tr><td>C1-a + C1-b</td><td>12-high 58 %, 16-high 42 %</td><td>2</td></tr>
-<tr><td>C1-a + C1-b + C4</td><td>8/12/16-high 48/20/32 %</td><td>3</td></tr>
+<tr><th>Active constraints</th><th>Height allocation</th><th>Period allocation</th><th>Kinds</th></tr>
+<tr><td>C3 only</td><td>12-high 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C4 only</td><td>12-high 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C2 only</td><td>12-high 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
+<tr><td>C1-a + C1-b</td><td>12-high 74 %, 16-high 26 %</td><td><i>k</i>=2 26 %, <i>k</i>=4 74 %</td><td>2</td></tr>
+<tr><td>C1-a + C1-b + C4</td><td>12-high 97 %, 16-high 3 %</td><td><i>k</i>=2 97 %, <i>k</i>=4 3 %</td><td>2</td></tr>
 </table>
 
 <p><b>The 16-high share is derived, not merely observed.</b> C4 is a summed constraint, so a mix of two configurations whose individual floors straddle the cap must sit exactly on it. With &beta;<sub>f</sub> = 0.95 the floors are 371.0 ppm for 12-high <i>k</i>=2 and 770.1 ppm for 16-high <i>k</i>=4; blending them to 200 ppm... in fact both floors exceed the cap, so the binding mix is set by the pair actually selected, and solving the blend equation for the observed pair gives a predicted 16-high share of <b>2.32 %</b> against <b>2.68 %</b> in Table VIII. The residual is the wafer and demand constraints acting on the same variables. This closes the item left open in the first version, where the 2.7 % share was reported as an unexplained output.</p>
@@ -506,8 +506,8 @@
 <table>
 <tr><th>Statement</th><th>Condition</th></tr>
 <tr><td>&ldquo;&beta; &le; 0.88 is infeasible even at <i>k</i>=1&rdquo;</td><td>&beta;<sub>f</sub>=0.95, limit 200 ppm</td></tr>
-<tr><td>&ldquo;over half of parameter draws are infeasible&rdquo;</td><td>same, plus &beta;, &beta;<sub>f</sub> distributions</td></tr>
-<tr><td>&ldquo;baseline mix is 8k2 + 12k2 + 16k4&rdquo;</td><td>&ge;12-high demand share 0.70</td></tr>
+<tr><td>&ldquo;71.7 % of parameter draws are infeasible&rdquo;</td><td>same, plus &beta;, &beta;<sub>f</sub> distributions</td></tr>
+<tr><td>&ldquo;baseline mix is 12-high <i>k</i>=2 97 % + 16-high <i>k</i>=4 3 %&rdquo;</td><td>&ge;12-high demand share 0.70</td></tr>
 <tr><td>&ldquo;height allocation in the transition band&rdquo;</td><td>under Assumption 3</td></tr>
 </table>
 

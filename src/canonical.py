@@ -208,6 +208,48 @@ def attach_external(out):
         out["transition"] = {"by_cap": tr, "plateau": plateau, "knee_ppm": knee,
                              "at_cap_200": tr.get("200")}
 
+    # 제약별 귀속 분해 (표 XIII) — 인스턴스 서명을 검증한 뒤에만 채택한다.
+    # 3라운드 T-1 #18: 이 산출이 파이프라인 밖(CHECKS)에 있어 스크립트는 정상인데
+    # 원고만 v1 값(8/12/16 = 48/20/32 %, 3종)으로 남았다. 검사기가 규칙을 갖지
+    # 않았으므로 표 VIII 과 정면으로 모순된 채 2라운드를 통과했다.
+    f = os.path.join(D, "constraint_attribution_log.txt")
+    if os.path.exists(f):
+        t = open(f, encoding="utf-8").read()
+        m = re.search(r"기준선 : x=([\d.]+) β=([\d.]+) a=([\d.]+) θ=([\d.]+)\s+"
+                      r"H_t/H_b=([\d.]+)", t)
+        stale = None
+        if not m:
+            stale = "로그 헤더를 읽을 수 없다"
+        else:
+            P = out["parameters"]
+            want = (P["x"], P["beta"], P["a"], P["theta"],
+                    out["instance"]["rho_baseline"])
+            got = tuple(float(m.group(i)) for i in range(1, 6))
+            if any(abs(u - v) > 1e-9 for u, v in zip(want, got)):
+                stale = "인스턴스 불일치 want=%s got=%s" % (want, got)
+        rows = {}
+        if stale is None:
+            for label, key in ((r"all on", "all"),
+                               (r"C1a\+C1b 단독", "capa_only"),
+                               (r"C4 단독", "C4_only"),
+                               (r"C2 단독", "C2_only"),
+                               (r"전부 해제 \(C3만\)", "C3_only")):
+                mm = re.search(label + r"\s+L종수(\d+) K종수(\d+)\s+"
+                               r"(\d+)%\s*/(\d+)%\s*/(\d+)%\s+"
+                               r"(\d+)%\s*/(\d+)%\s*/(\d+)%\s+(\d+) ppm", t)
+                if mm:
+                    g = [int(v) for v in mm.groups()]
+                    rows[key] = {"kinds_L": g[0], "kinds_K": g[1],
+                                 "share_L": {"8": g[2], "12": g[3], "16": g[4]},
+                                 "share_k": {"1": g[5], "2": g[6], "4": g[7]},
+                                 "dppm": g[8]}
+            if "all" not in rows:
+                stale = "기준선 행을 파싱하지 못했다"
+        out["constraint_attribution"] = {"rows": rows, "stale_reason": stale}
+    else:
+        out["constraint_attribution"] = {
+            "rows": {}, "stale_reason": "로그 없음 — check_constraint_attribution.py 미실행"}
+
     # 몬테카를로
     f = os.path.join(D, "phase3_log.txt")
     if os.path.exists(f):

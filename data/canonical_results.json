@@ -257,6 +257,86 @@
     "knee_ppm": 425.0,
     "at_cap_200": 1.2872
   },
+  "constraint_attribution": {
+    "rows": {
+      "all": {
+        "kinds_L": 2,
+        "kinds_K": 2,
+        "share_L": {
+          "8": 0,
+          "12": 97,
+          "16": 3
+        },
+        "share_k": {
+          "1": 0,
+          "2": 97,
+          "4": 3
+        },
+        "dppm": 200
+      },
+      "capa_only": {
+        "kinds_L": 2,
+        "kinds_K": 2,
+        "share_L": {
+          "8": 0,
+          "12": 74,
+          "16": 26
+        },
+        "share_k": {
+          "1": 0,
+          "2": 26,
+          "4": 74
+        },
+        "dppm": 357
+      },
+      "C4_only": {
+        "kinds_L": 1,
+        "kinds_K": 1,
+        "share_L": {
+          "8": 0,
+          "12": 100,
+          "16": 0
+        },
+        "share_k": {
+          "1": 100,
+          "2": 0,
+          "4": 0
+        },
+        "dppm": 96
+      },
+      "C2_only": {
+        "kinds_L": 1,
+        "kinds_K": 1,
+        "share_L": {
+          "8": 0,
+          "12": 100,
+          "16": 0
+        },
+        "share_k": {
+          "1": 100,
+          "2": 0,
+          "4": 0
+        },
+        "dppm": 96
+      },
+      "C3_only": {
+        "kinds_L": 1,
+        "kinds_K": 1,
+        "share_L": {
+          "8": 0,
+          "12": 100,
+          "16": 0
+        },
+        "share_k": {
+          "1": 100,
+          "2": 0,
+          "4": 0
+        },
+        "dppm": 96
+      }
+    },
+    "stale_reason": null
+  },
   "monte_carlo": {
     "draws": 2000,
     "feasible": 566,

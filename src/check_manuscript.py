@@ -166,6 +166,26 @@ def build_rules(C):
         required.append((re.escape(str(C["c4_blending"]["predicted_16L_share_pct"])),
                          "C4 blending 예측값이 보고돼야 한다 (2라운드 N6)"))
 
+    # ── 표 XIII·X·XIV 스테일 (3라운드 T-1 #17·#18·#19) ────
+    # 파이프라인 밖 스크립트의 산출이 원고에 반영되지 않은 부류. 값 자체가
+    # 그럴듯해 사람 눈으로는 걸러지지 않으며, 표 VIII 과 대조해야만 드러난다.
+    attr = C.get("constraint_attribution", {})
+    if attr.get("stale_reason"):
+        forbidden.append((r"\A", "귀속 로그가 정본 인스턴스와 불일치: %s"
+                          % attr["stale_reason"], "check_constraint_attribution.py 재실행"))
+    for bad, why in (
+        (r"12단 58 %, 16단 42 %|12-high 58 %, 16-high 42 %", "v1 C1a+C1b 귀속"),
+        (r"48/20/32", "v1 기준선 3종 믹스 — 표 VIII 과 모순"),
+        (r"8단k2 \+ 12단k2 \+ 16단k4|8k2 \+ 12k2 \+ 16k4", "v1 기준 믹스"),
+        (r"15~44 %|15&ndash;44 %", "v1 저수율 16단 비중"),
+        (r"절반 이상이 실행 불가|over half of parameter draws", "실측 71.7 % 로 대체"),
+    ):
+        forbidden.append((bad, why, "표 XIII/X/XIV 재산출값"))
+    a = attr.get("rows", {}).get("all")
+    if a:
+        required.append((r"12단 97 %, 16단 3 %|12-high 97 %, 16-high 3 %",
+                         "표 XIII 기준선 행이 표 VIII 과 일치해야 한다"))
+
     return forbidden, required
 
 

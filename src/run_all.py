@@ -62,6 +62,8 @@ STEPS = [
      "data/feasibility_decomp_log.txt, feasibility_decomp.csv"),
     ("check_literature.py", "품질 제약 구속 임계 + 검증 8 재정의(문헌 재현)",
      "data/check_literature_log.txt"),
+    ("check_constraint_attribution.py", "제약별 귀속 분해 — 표 XIII 산출",
+     "data/constraint_attribution_log.txt"),
     ("canonical.py", "정본 수치 확정 — 원고 대조의 기준",
      "data/canonical_results.json"),
     ("check_manuscript.py", "원고 대조 검사 — 스테일 수치·미실체 주장·언어 오염",
@@ -70,7 +72,6 @@ STEPS = [
 
 # 검증용 일회성 스크립트 — 파이프라인에는 포함하지 않는다
 CHECKS = [
-    ("check_constraint_attribution.py", "제약별 귀속 분해 (C1a/C1b/C2/C4)"),
     ("check_single_k.py", "층수당 단일 검사주기 제약의 영향"),
     ("check_single_k_xsweep.py", "동 제약의 수율 스윕 민감도"),
     ("check_scenario_d.py", "검출률 β 시나리오"),
