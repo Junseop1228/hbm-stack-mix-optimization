@@ -323,7 +323,7 @@
 <tr><td>outgoing DPPM</td><td>200 ppm (binding)</td></tr>
 </table>
 
-<p><b>This solution is unique.</b> Reporting 97.3 % to one decimal place is only legitimate if no alternative optimum exists, so we check two levels separately. At the integer level we enumerate all 4<sup>3</sup>=64 assignments of a single <i>k</i> per height and solve each as a pure linear program. Of the 44 feasible assignments, four attain the optimal value, and <b>all four yield the identical production mix</b>; they differ only in the <i>k</i> label attached to the 8-high configuration, whose quantity is zero. Since &Sigma;<sub><i>k</i></sub> <i>y</i><sub><i>Lk</i></sub> &le; 1 does not pin down <i>k</i> for an unused height, this is degeneracy in <i>y</i>, not in the mix. At the continuous level we fix the objective at its optimal value and minimize and maximize each <i>q</i><sub><i>Lk</i></sub> in turn; the widest share interval is 2.6&times;10<sup>&minus;5</sup> pp, at solver tolerance. One decimal place is therefore justified. The statement is confined to the baseline instance: in the transition band (0.9650&ndash;0.9800 in Table X) the binding set changes and the same precision is not guaranteed.</p>
+<p><b>This solution is unique.</b> Reporting 97.3 % to one decimal place is only legitimate if no alternative optimum exists, so we check two levels separately. At the integer level we enumerate all 4<sup>3</sup>=64 assignments of a single <i>k</i> per height and solve each as a pure linear program. Of the 44 feasible assignments, four attain the optimal value, and <b>all four yield the identical production mix</b>; they differ only in the <i>k</i> label attached to the 8-high configuration, whose quantity is zero. Since &Sigma;<sub><i>k</i></sub> <i>y</i><sub><i>Lk</i></sub> &le; 1 does not pin down <i>k</i> for an unused height, this is degeneracy in <i>y</i>, not in the mix. At the continuous level we fix the objective at its optimal value and minimize and maximize each <i>q</i><sub><i>Lk</i></sub> in turn; the widest share interval is 2.6&times;10<sup>&minus;5</sup> pp, at solver tolerance. One decimal place is therefore justified. The statement is confined to the baseline instance: in the transition band (0.9650&ndash;0.9800 in Table XI) the binding set changes and the same precision is not guaranteed.</p>
 
 <figure class="span">
   <img src="fig/fig1_bottleneck_vs_quality.png" alt="Bottleneck transition versus quality target">
@@ -353,7 +353,7 @@
 
 <h4>Dependence on the two unknown time ratios.</h4> <p class="noindent">Both the transition ratio and the mix depend strongly on &theta; and on &phi;<sub>f</sub>, and both are unknown. Reporting a single number would misstate the evidence.</p>
 
-<div class="tcap">Table XVI<br>Transition ratio and knee over the final-test time ratio</div>
+<div class="tcap">Table X<br>Transition ratio and knee over the final-test time ratio</div>
 <table>
 <tr><th>&phi;<sub>f</sub></th><th>transition <i>H<sub>t</sub></i>/<i>H<sub>b</sub></i></th><th>knee (ppm)</th><th>plateau</th><th>mix 8/12/16 (%)</th></tr>
 <tr><td>1.0 (baseline)</td><td>1.2872</td><td>425</td><td>0.7284</td><td>0 / 97 / 3</td></tr>
@@ -370,7 +370,7 @@
 
 <h3>C.&nbsp;&nbsp;Two Distinct Causes for 16-High Stacks</h3>
 
-<div class="tcap">Table X<br>Regimes over per-layer yield</div>
+<div class="tcap">Table XI<br>Regimes over per-layer yield</div>
 <table>
 <tr><th>Range of <i>x</i></th><th>16-high share</th><th>Binding constraints</th></tr>
 <tr><td>&le; 0.9500</td><td>36&ndash;52 %</td><td>C2 binding &mdash; <b>demand forces</b></td></tr>
@@ -398,7 +398,7 @@
 
 <p><b>Truncation bias.</b> Feasibility itself depends on the parameters, so every correlation below is a <b>conditional</b> association on the feasible subsample, not an unconditional effect. A logistic fit on feasibility gives standardized coefficients &theta; &minus;5.54, &beta; +3.91, &beta;<sub>f</sub> +3.35, <i>x</i> +3.07, &phi;<sub>f</sub> &minus;1.53, with all four cost coefficients below 0.15 in magnitude. &theta; dominates the truncation and is also first in the bottleneck column, so its correlation carries the bias directly. That the cost coefficients are inert in the truncation as well is an independent argument for their immateriality.</p>
 
-<div class="tcap">Table XI<br>Monte Carlo distribution (n = 566)</div>
+<div class="tcap">Table XII<br>Monte Carlo distribution (n = 566)</div>
 <table>
 <tr><th>Quantity</th><th>Median</th><th>90 % interval</th></tr>
 <tr><td>8-high share</td><td><b>0.0 %</b></td><td>0&ndash;45.3 %</td></tr>
@@ -410,7 +410,7 @@
 
 <p>The confidence interval on stack-height share spans zero to one hundred percent, so the statement &ldquo;the optimum is 12-high&rdquo; cannot be asserted. The bottleneck, by contrast, is the tester with probability &asymp; 87 % (90 % CI 85&ndash;89, conditional on the assumed &rho; and &phi;<sub>f</sub> ranges). The asymmetry itself is a result.</p>
 
-<div class="tcap">Table XII<br>Correlation of parameters with outcomes</div>
+<div class="tcap">Table XIII<br>Correlation of parameters with outcomes</div>
 <table>
 <tr><th>Parameter</th><th>16-high share</th><th>profit/s</th><th>tester bottleneck</th></tr>
 <tr><td><b><i>x</i></b></td><td><b>+0.415</b></td><td>+0.314</td><td>&minus;0.016</td></tr>
@@ -444,7 +444,7 @@
 
 <h3>G.&nbsp;&nbsp;Attribution of the Product Mix</h3>
 
-<div class="tcap">Table XIII<br>Constraint attribution</div>
+<div class="tcap">Table XIV<br>Constraint attribution</div>
 <table>
 <tr><th>Active constraints</th><th>Height allocation</th><th>Period allocation</th><th>Kinds</th></tr>
 <tr><td>C3 only</td><td>12-high 100 %</td><td><i>k</i>=1 100 %</td><td>1</td></tr>
@@ -504,7 +504,7 @@
 
 <h3>C.&nbsp;&nbsp;Conclusions Requiring Explicit Conditions</h3>
 
-<div class="tcap">Table XIV<br>Conditional statements</div>
+<div class="tcap">Table XVI<br>Conditional statements</div>
 <table>
 <tr><th>Statement</th><th>Condition</th></tr>
 <tr><td>&ldquo;&beta; &le; 0.88 is infeasible even at <i>k</i>=1&rdquo;</td><td>&beta;<sub>f</sub>=0.95, limit 200 ppm</td></tr>
