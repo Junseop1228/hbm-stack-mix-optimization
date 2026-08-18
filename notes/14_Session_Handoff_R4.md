@@ -1,5 +1,7 @@
-# 세션 인계 — Round 4 대응 (STEP 1 진행 중)
-**작성 2026.08.18**
+# 세션 인계 — Round 4 대응
+**최초 작성 2026.08.18 · 최신화 2026.08.18 (STEP 1-2 종료 시점)**
+
+STEP 1 (1-1 계산 / 1-2 원고 전파) 은 **완료**했다. STEP 1-3 부터가 남았다.
 
 ---
 
@@ -7,17 +9,15 @@
 
 ```powershell
 cd "C:\Users\userPC\Desktop\Workspace\00_Active\2026_Summer\semconductor\HBM_Stack_Mix_Optimization"
-Get-Process python -ErrorAction SilentlyContinue      # 비어야 정상
-Get-Item data\phi_final_wide_log.txt | Select LastWriteTime
-Select-String -Path data\phi_final_wide_log.txt -Pattern "knee \(ppm\)" -Context 0,5
+git log --oneline -8
+git status --short                      # 비어야 정상
+python src\check_manuscript.py          # 0 건이어야 정상
 ```
 
-**phi_final_wide.py 2차 실행이 끝났는지 반드시 확인하라.** 로그의 knee 열이
-전부 **410** 이어야 한다. 425 면 아직 1차 실행 산출물이므로 재실행할 것
-(약 4분, 백그라운드 권장).
+`check_manuscript.py` 가 **4개 원고 전부 OK** 로 나와야 한다. 1 건이라도
+뜨면 STEP 1-2 이후 누군가 정본과 어긋나게 고친 것이므로 먼저 그걸 본다.
 
-그 다음 `python src\check_manuscript.py` — **현재 8건 실패가 정상이다.**
-새 규칙이 원고의 옛 값을 잡고 있는 상태이고, STEP 1-2 에서 원고를 고치면 0 이 된다.
+STEP 1 관련 계산은 전부 끝났다. **phi_final_wide.py 재실행 불필요.**
 
 ---
 
@@ -25,8 +25,8 @@ Select-String -Path data\phi_final_wide_log.txt -Pattern "knee \(ppm\)" -Context
 
 | 항목 | 결과 |
 |---|---|
-| **F1 DPPM floor** | 12단 k=2 = **195.1 ppm**, 16단 k=4 = **406.2 ppm**. 원고의 371.0 / 770.1 은 **어떤 스크립트도 산출한 적 없는 손입력 값**이다(src·data 전수 검색 확인). A.2 닫힌형과 block_y 출력 두 경로로 독립 확인 |
-| **M-d knee** | 25 ppm 격자의 425 는 **격자 인공물**. 5 ppm 에서 **410 ppm**. 직전 격자점 405 는 plateau 와 0.0019 차 |
+| **F1 DPPM floor** | 12단 k=2 = **195.1 ppm**, 16단 k=4 = **406.2 ppm**. 원고에 있던 371.0 / 770.1 은 어떤 스크립트도 산출한 적 없는 손입력 값이었다(src·data 전수 검색 확인). A.2 닫힌형과 block_y 출력 두 경로로 독립 확인 |
+| **M-d knee** | 25 ppm 격자의 425 는 **격자 인공물**. 5 ppm 에서 **410 ppm**. 직전 격자점 405 는 plateau(0.7284) 와 0.0019 차 |
 | **S4 knee 불변성** | 5 ppm 해상도에서도 φ_f = 1/3/8/20 전부 410. **주장이 강해졌다** |
 | **S1 gate0 임계 a** | 현행 1.39 / 10.26 은 φ_f 항이 빠진 값. φ_f=1 → **0.0 / 6.68**, φ_f=2.03 → 0.0 / 2.995, φ_f≥3 → 0.0 / 0.0. Check 8(b) 의 "φ_f < 2.03 에서만 내부최적" 과 정확히 맞물린다 |
 | **F3 event-MC** | `data/block_y_mc_verify_log.txt` 에 400,000회 표본·4×SE 판정·전건 OK. **계산 완비, 원고 보고만 없음** |
@@ -39,48 +39,100 @@ VII-F 의 k=1/k=4 반전 메커니즘("조기폐기가 최종테스트 시간까
 
 ---
 
-## 2. 코드 변경 (완료, 미커밋)
+## 2. STEP 1-2 에서 실제로 한 일 (커밋 7건)
 
-- `src/transition_curve.py` — 350~500 을 5 ppm 격자로. knee·plateau·직전 격자점 출력
-- `src/phi_final_wide.py` — `_ratio()` 분리 + `knee()` 를 거친격자 브래킷 + 5 ppm 이분탐색으로.
-  전 구간 5 ppm 은 비용 3배라 회피했다 (추가 약 5회)
-- `src/canonical.py` — `out["dppm_floors"]` 신설. A.2 닫힌형 직접 계산
-- `src/check_manuscript.py` — knee 필수/옛 knee 금지, floor 필수, 371.0·770.1 금지
+| 커밋 | 내용 |
+|---|---|
+| `23423d7` | 계산분 — 5 ppm 격자, knee 410, dppm_floors 신설, 검사 규칙 추가 |
+| `54ece06` | R4 인계문서 + gitignore (`/pw.*`) |
+| `c8b41a8` | paper_en.html — knee 전파 11곳 + **C4 블렌딩 문단 논리 복구** |
+| `08aa40b` | Fig.1 재생성 + **KNEE 하드코딩 제거** |
+| `49e06c7` | 국문 3종 전파 → check_manuscript 0 건 |
+| `38654c7` | phi_final_wide 로그 헤더 정합화 |
+| `ebee361` | PDF 재빌드 + 조판 텍스트 검증 |
 
----
+**가장 중요한 두 건은 숫자 치환이 아니다.**
 
-## 3. 다음 작업 — STEP 1-2 (원고 전파)
+**(1) VII-G 문단 논리 복구.** 소제목이 "The 16-high share is derived, not
+merely observed" 인데 본문은 "두 하한이 cap 을 사이에 끼면(straddle) 정확히
+cap 위에 앉는다" 고 전제를 세운 뒤 곧바로 "사실 두 하한 모두 cap 을 넘는다"
+고 자기 전제를 부수고 있었다. 게다가 말줄임표가 그대로 노출돼 있었다.
+정본 floor 를 넣으니 **195.1 < 200 < 406.2** 로 straddle 이 실제 성립하고,
+블렌딩 식 (200−195.1)/(406.2−195.1) = 2.3212 % 가 원고가 이미 보고하던
+2.32 % 를 소수점까지 재현한다. **즉 2.32 % 는 처음부터 옳은 floor 로
+계산됐고 본문에 적힌 floor 만 틀려 있었다.** 소제목이 이제 참이다.
 
-**425 → 410 을 전 파일에 반영.** 등장 위치 25곳:
-paper_en.html 10곳(**초록 포함**), 07_Results.md 2, 11_Report.md 1, README.md 1,
-make_figures.py 5(**그림에 하드코딩**), mix_vs_yield.py 2, phi_final_wide.py 3,
-transition_curve.py 1.
+**(2) make_figures.py 의 KNEE 하드코딩 제거.** 이번 사고의 구조적 원인이
+"상수로 박아둔 값은 재계산 후 조용히 스테일이 된다" 였다. `KNEE = 425.0`
+을 `canonical_results.json` 의 `transition.knee_ppm` 조회로 바꿔 재발
+경로를 끊었다. 축 major tick 도 KNEE 를 참조한다.
 
-주의 — 단순 치환 금지. `make_figures.py` 수정 후 **그림 재생성 필수**이고,
-`phi_final_wide.py` 의 425 는 독스트링·헤더 문구다.
-07_Results.md L169 는 "knee 는 400~425 ppm" 형태라 문장을 다시 써야 한다.
-
-전파 후 `python src\check_manuscript.py` 가 0 이 되어야 한다.
-
----
-
-## 4. 이번 세션의 자체 오류 (기록)
-
-**패치 스크립트가 "OK" 를 출력했는데 파일이 안 바뀌어 있었다.** 두 건
-(`canonical.py`, `phi_final_wide.py`). 원인은 `phi_final_wide.py` 가 CRLF 인데
-앵커를 LF 로 만든 것이고, PowerShell 이 stderr 를 삼켜 AssertionError 가
-보이지 않았다. **출력의 OK 를 믿고 산출물을 확인하지 않은 것**이 실질 원인이며,
-심사자가 F1 에서 지적한 실패("인쇄된 것을 신뢰")와 같은 계열이다.
-
-처방: 패처는 **쓰기 후 파일을 다시 읽어 새 내용이 있는지 검증**한다.
-`must_appear` 인자를 받는 형태로 이미 전환했다. 이 방식을 유지할 것.
+**보존 결정 (지우지 말 것).** `phi_final_wide.py` L7~L10 의 425 는 2라운드
+심사자 지적의 **직접 인용문**이고 당시 보고값이 실제로 425 였다. 인용문의
+숫자를 고치면 기록 위조이므로 원문을 두고 편집자 주를 덧붙였다.
+`transition_curve.py` L5 의 425 도 "왜 격자를 낮췄는가" 의 근거 서술이라
+보존했다. `check_manuscript.py` 의 425 는 금지어 목록이다.
 
 ---
 
-## 5. Round 4 잔여 계획
+## 3. 다음 작업 — STEP 1-3
 
-STEP 1-3 (gate0 에 φ_f 정식 반영 + 파이프라인 편입), STEP 2 (상호참조 검증기
-`check_crossref.py` — F3·F4·M-b·S6 를 한 번에), STEP 3 (F1~F5), STEP 4 (M-a~M-f),
-STEP 5 (S 항목 + 마감), STEP 6 (VIII-E 네 번째 항목).
+**gate0 에 φ_f 정식 반영 + 파이프라인 편입.**
 
-상세는 직전 세션의 계획 참조. **재계산이 남은 것은 M-c 의 비균일 family 전환비 1점뿐이다.**
+이때 반드시 같이 처리할 것:
+
+- `docs/07_Results.md` **L173** 의 `8→12단 a = 1.39, 12→16단 a = 10.26` 은
+  φ_f 항이 빠진 스테일이다. φ_f=1 정본은 **0.0 / 6.68**. 현재 검사기 규칙에
+  없어서 통과하고 있을 뿐이다.
+- 갱신하면서 `check_manuscript.py` 에 **임계 a 규칙을 추가**하라. 안 그러면
+  다음 재계산 때 또 놓친다. 이번에 knee 로 똑같은 일을 겪었다.
+
+---
+
+## 4. Round 4 잔여 계획
+
+STEP 2 (상호참조 검증기 `check_crossref.py` — F3·F4·M-b·S6 를 한 번에),
+STEP 3 (F1~F5), STEP 4 (M-a~M-f), STEP 5 (S 항목 + 마감),
+STEP 6 (VIII-E 네 번째 항목).
+
+**미보고 2건**: F3 event-MC, S6 EVPPI. 둘 다 계산은 완비돼 있고 원고에
+싣기만 하면 된다 (위 1절 참조).
+
+**재계산이 남은 것은 M-c 의 비균일 family 전환비 1점뿐이다.**
+
+---
+
+## 5. 자체 오류 기록 (누적)
+
+**(1) 패치 스크립트가 "OK" 를 출력했는데 파일이 안 바뀌어 있었다.** 두 건
+(`canonical.py`, `phi_final_wide.py`). 원인은 대상이 CRLF 인데 앵커를 LF 로
+만든 것이고, PowerShell 이 stderr 를 삼켜 AssertionError 가 보이지 않았다.
+실질 원인은 **출력의 OK 를 믿고 산출물을 확인하지 않은 것**이며, 심사자가
+F1 에서 지적한 실패("인쇄된 것을 신뢰")와 같은 계열이다.
+처방: 패처는 쓰기 후 파일을 다시 읽어 검증한다 (`must_appear` 인자).
+
+**(2) 잔존값 검사가 이력 서술을 스테일로 오판했다.** `07_Results.md` 의 새
+문장에 의도적으로 넣은 "초기 25 ppm 격자에서는 425 로 보였으나" 를 패처가
+폐기값으로 보고 비정상 종료했다. 산출물 자체는 정상이었다.
+교훈: **잔존값 검사는 폐기값과 이력 서술을 구분해야 한다.**
+`check_manuscript.py` 가 단순 숫자가 아니라 구절 단위 규칙을 쓰는 이유다.
+
+**(3) PDF 를 원시 스트림 grep 으로 검증하려 했다.** 195.1·406.2 가 0 건으로
+나왔는데 원고에 분명히 있는 값이었다. 추출이 실패한 것이고, 그때 잡힌
+410/425 는 본문이 아니라 **그리기 좌표**였다. 폰트 서브셋 PDF 에 원시 grep 을
+쓰면 안 된다. `pdfminer.high_level.extract_text` 로 재검증해 확정했다.
+(환경에 `pdfminer`, `pypdf` 사용 가능. `fitz`·`PyPDF2` 없음.)
+
+---
+
+## 6. 작업 원칙 (이번 세션에서 유효성 확인됨)
+
+- **롤백 지점 먼저.** 대량 치환 전에 반드시 커밋한다.
+- **파일 하나 끝내고 검사기 → 커밋.** 한꺼번에 25곳을 치지 않는다.
+- 패처는 **전 파일 dry-run 통과 후에야 쓴다.** 한 건이라도 앵커 불일치면 전체 중단.
+- 쓰기 후 **재읽기 검증** (`must_appear` / `must_vanish`).
+- 다중행 앵커 전에 **CRLF 여부 확인**. `phi_final_wide.py` 는 CRLF, 나머지 대부분 LF.
+- 긴 스크립트(4분 내외)는 **MCP 아닌 터미널에서 직접 실행**. phi_final_wide.py 는 약 3분.
+- 그림은 **두 모드 다 실행**해야 한다. `python src\make_figures.py` → `figures/`,
+  `--no-caption` → `paper/fig/` (논문이 참조하는 쪽). 복사 아니고 재실행이다.
+- 한글 커밋 메시지는 `[System.IO.File]::WriteAllText` 로 UTF8NoBOM 파일 작성 후 `git commit -F`.
