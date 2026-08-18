@@ -10,7 +10,7 @@ PLOS Computational Biology 10(9): e1003833, DOI 10.1371/journal.pcbi.1003833
 
 v1 대비 변경 (지적 3건 반영)
 --------------------------
-fig1  로그축 major tick 이 10^3 하나뿐이라 425 ppm 무릎 위치를 축에서 읽을 수 없었다.
+fig1  로그축 major tick 이 10^3 하나뿐이라 knee 위치를 축에서 읽을 수 없었다.
       → 데이터 지점에 명시 눈금. 계열 1개짜리 범례 제거. 두 체제를 음영으로 구분.
 
 fig2  ★ 차트 종류 자체를 교체했다.
@@ -25,6 +25,7 @@ fig3  "no final test" 주석이 k=4 곡선을 관통했다.
 """
 
 import csv
+import json
 import os
 import sys
 
@@ -70,7 +71,7 @@ def save(fig, name):
 
 # ======================================================================
 # Figure 1 — 병목 전환점 vs 출하 품질 목표
-#   메시지: 품질 목표가 425 ppm 보다 느슨하면 설비 증설 우선순위는 품질과 무관하다.
+#   메시지: 품질 목표가 knee(410 ppm) 보다 느슨하면 설비 증설 우선순위는 품질과 무관하다.
 #           조이면 품질이 결정하며, 200 ppm 에서는 테스터가 본더보다 많아야 한다.
 # ======================================================================
 
@@ -83,7 +84,9 @@ def fig1():
                 caps.append(float(row["dppm_cap"]))
                 vals.append(float(row["transition_Ht_over_Hb"]))
 
-    KNEE = 425.0
+    # knee 를 상수로 박아두면 재계산 후 그림만 옛값으로 남는다. 정본에서 읽는다.
+    with open(os.path.join(DATA, "canonical_results.json"), encoding="utf-8") as f:
+        KNEE = float(json.load(f)["transition"]["knee_ppm"])
     XMIN, XMAX = 175.0, 6500.0
     fig, ax = plt.subplots(figsize=(7.0, 4.2))
 
@@ -125,8 +128,8 @@ def fig1():
     ax.set_xlim(XMIN, XMAX)
     ax.set_ylim(0.48, 1.34)
     # Rule 8 — 눈금 수를 줄이되 반드시 읽어야 할 값은 명시한다
-    ax.xaxis.set_major_locator(FixedLocator([200, 425, 1000, 5000]))
-    ax.xaxis.set_major_formatter(FixedFormatter(["200", "425", "1,000", "5,000"]))
+    ax.xaxis.set_major_locator(FixedLocator([200, KNEE, 1000, 5000]))
+    ax.xaxis.set_major_formatter(FixedFormatter(["200", "%d" % KNEE, "1,000", "5,000"]))
     ax.xaxis.set_minor_formatter(NullFormatter())
     ax.xaxis.set_minor_locator(FixedLocator([250, 300, 350, 500, 600, 2000, 3000]))
     ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2])
