@@ -70,26 +70,53 @@ def transition(pf, lo=0.2, hi=6.0, iters=34):
     return (lo + hi) / 2
 
 
-def knee(pf, caps=(200, 250, 300, 350, 400, 425, 450, 500, 700, 1000, 2000, 5000)):
-    """전환 비율이 평탄해지기 시작하는 cap."""
-    vals = {}
-    for c in caps:
-        coef = coefficients(Params(phi_final=pf))
-        lo, hi = 0.2, 6.0
-        for _ in range(28):
-            mid = (lo + hi) / 2
-            s = solve(coef, H_BONDER, H_BONDER * mid, segments=DEMAND_SEG,
-                      wafer_dies=DEMAND_WAFER_DIES, dppm_cap=c)
-            if s["status"] != "Optimal":
-                lo = mid; continue
-            if s["dual_test"] > s["dual_bond"]:
-                lo = mid
-            else:
-                hi = mid
-        vals[c] = round((lo + hi) / 2, 4)
+def _ratio(pf, cap):
+    """주어진 cap 에서 병목이 뒤바뀌는 H_t/H_b 를 이분탐색한다."""
+    coef = coefficients(Params(phi_final=pf))
+    lo, hi = 0.2, 6.0
+    for _ in range(28):
+        mid = (lo + hi) / 2
+        s = solve(coef, H_BONDER, H_BONDER * mid, segments=DEMAND_SEG,
+                  wafer_dies=DEMAND_WAFER_DIES, dppm_cap=cap)
+        if s["status"] != "Optimal":
+            lo = mid; continue
+        if s["dual_test"] > s["dual_bond"]:
+            lo = mid
+        else:
+            hi = mid
+    return round((lo + hi) / 2, 4)
+
+
+def knee(pf, caps=(200, 250, 300, 350, 400, 450, 500, 700, 1000, 2000, 5000),
+         grid=5, tol=1e-3):
+    """전환 비율이 평탄해지기 시작하는 cap. 격자 해상도 5 ppm.
+
+    3라운드 S4/M-d: knee 를 격자점으로 보고하면 값이 해상도의 인공물이 된다.
+    실제로 25 ppm 격자의 425 ppm 은 5 ppm 에서 410 ppm 으로 이동했다.
+    전 구간을 5 ppm 으로 훑으면 비용이 3배가 되므로, 거친 격자로 구간을
+    좁힌 뒤 그 안에서만 5 ppm 이분탐색한다 (추가 약 5회).
+    """
+    vals = {c: _ratio(pf, c) for c in caps}
     plateau = vals[max(caps)]
-    kn = min((c for c in caps if abs(vals[c] - plateau) < 1e-3), default=None)
-    return kn, plateau, vals
+    flat = [c for c in caps if abs(vals[c] - plateau) < tol]
+    if not flat:
+        return None, plateau, vals
+    hi = min(flat)
+    below = [c for c in caps if c < hi]
+    if not below:
+        return hi, plateau, vals
+    lo = max(below)
+    while hi - lo > grid:
+        mid = int(round((lo + hi) / 2.0 / grid) * grid)
+        if mid <= lo or mid >= hi:
+            break
+        v = _ratio(pf, mid)
+        vals[mid] = v
+        if abs(v - plateau) < tol:
+            hi = mid
+        else:
+            lo = mid
+    return hi, plateau, vals
 
 
 def single_constraint(pf, which):

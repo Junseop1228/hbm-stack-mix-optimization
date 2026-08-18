@@ -208,6 +208,21 @@ def attach_external(out):
         out["transition"] = {"by_cap": tr, "plateau": plateau, "knee_ppm": knee,
                              "at_cap_200": tr.get("200")}
 
+    # DPPM floor — 부록 A.2 닫힌형으로 직접 계산한다 (3라운드 F1).
+    # VII-G 의 371.0 / 770.1 은 어떤 스크립트도 산출한 적이 없는 손입력 값이었고,
+    # 정본에 없었기 때문에 검사기를 통과했다. 정본이 스스로 계산하면 잡힌다.
+    _p = out["parameters"]
+    _x, _b, _bf = _p["x"], _p["beta"], _p["beta_f"]
+    _fl = {}
+    for _L, _k in ((12, 2), (16, 4), (8, 2), (16, 2), (12, 4)):
+        _n = _L // _k
+        _xk = _x ** _k
+        _rho = (1.0 - _b) / _xk
+        _S = sum(_rho ** _s for _s in range(1, _n + 1))
+        _Q = (1.0 - _bf) * (1.0 - _xk) * _S
+        _fl["%d_%d" % (_L, _k)] = round(1e6 * _Q / (1.0 + _Q), 1)
+    out["dppm_floors"] = _fl
+
     # 유일성·축퇴 (3라운드 T-1 #20) — 보고 자릿수의 근거
     f = os.path.join(D, "degeneracy_log.txt")
     if os.path.exists(f):

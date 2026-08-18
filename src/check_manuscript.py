@@ -196,6 +196,28 @@ def build_rules(C):
                          re.escape("%.3f" % tr["plateau"]),
                          "평탄역 전환점이 보고돼야 한다"))
 
+    # ── knee 와 DPPM floor (3라운드 M-d·F1) ─────────────────
+    # knee: 정본이 410 으로 갱신됐는데 원고가 425 여도 검사기가 통과했다.
+    # 정본에 값이 있는데 원고와 묶는 규칙이 없으면 검사는 무력하다.
+    if tr.get("knee_ppm") is not None:
+        kn = int(tr["knee_ppm"])
+        required.append((r"\b%d\s*ppm" % kn, "knee 가 원고에 있어야 한다"))
+        for stale in (425, 400, 450):
+            if stale != kn:
+                forbidden.append((r"\b%d ppm[^.]{0,40}(knee|무릎)|(knee|무릎)[^.]{0,40}\b%d ppm"
+                                  % (stale, stale),
+                                  "격자 해상도가 낳은 옛 knee", "%d ppm" % kn))
+
+    # floor: 371.0 / 770.1 은 코드가 산출한 적이 없는 손입력 값이었다.
+    # 정본이 A.2 닫힌형으로 직접 계산해 들고 있으면 이 부류가 잡힌다.
+    fl = C.get("dppm_floors", {})
+    for key, label in (("12_2", "12단 k=2"), ("16_4", "16단 k=4")):
+        if key in fl:
+            v = fl[key]
+            required.append((re.escape("%.1f" % v), "%s floor 가 원고와 일치해야 한다" % label))
+    for bad in ("371.0", "770.1"):
+        forbidden.append((re.escape(bad), "코드가 산출한 적 없는 손입력 floor", "A.2 닫힌형 값"))
+
     # ── 유일성 보고 (3라운드 T-1 #20) ──────────────────────
     dg = C.get("degeneracy", {})
     if dg.get("mix_unique"):
